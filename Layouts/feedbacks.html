@@ -1,0 +1,250 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 600px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "Connor Young", "label": "Connor Young", "shape": "dot", "size": 10, "x": 0.01876406483777775, "y": 0.028849956248523694}, {"color": "#97c2fc", "id": "Sebastian Gonzalez", "label": "Sebastian Gonzalez", "shape": "dot", "size": 10, "x": 0.01876406483777777, "y": 0.028849956248523604}, {"color": "#97c2fc", "id": "Ignatius Gaines", "label": "Ignatius Gaines", "shape": "dot", "size": 10, "x": 0.018764064837777823, "y": 0.028849956248523836}, {"color": "#97c2fc", "id": "Matthew Martin", "label": "Matthew Martin", "shape": "dot", "size": 10, "x": 0.018764064837777795, "y": 0.028849956248523757}, {"color": "#97c2fc", "id": "Jeremiah Myers", "label": "Jeremiah Myers", "shape": "dot", "size": 10, "x": 0.018764064837778042, "y": 0.028849956248523746}, {"color": "#97c2fc", "id": "Tyson Bush", "label": "Tyson Bush", "shape": "dot", "size": 10, "x": 0.01876406483777762, "y": 0.02884995624852367}, {"color": "#97c2fc", "id": "Zander Buchanan", "label": "Zander Buchanan", "shape": "dot", "size": 10, "x": 0.018764064837777983, "y": 0.028849956248524315}, {"color": "#97c2fc", "id": "Leon Kirk", "label": "Leon Kirk", "shape": "dot", "size": 10, "x": 0.01876406483777749, "y": 0.028849956248523632}, {"color": "#97c2fc", "id": "Derek Barnes", "label": "Derek Barnes", "shape": "dot", "size": 10, "x": 0.01876406483777793, "y": 0.028849956248523632}, {"color": "#97c2fc", "id": "Zayden Coleman", "label": "Zayden Coleman", "shape": "dot", "size": 10, "x": 0.018764064837777764, "y": 0.028849956248523694}, {"color": "#97c2fc", "id": "Bryce Montgomery", "label": "Bryce Montgomery", "shape": "dot", "size": 10, "x": 0.018764064837777802, "y": 0.02884995624852349}, {"color": "#97c2fc", "id": "Jude Graham", "label": "Jude Graham", "shape": "dot", "size": 10, "x": 0.018764064837777733, "y": 0.028849956248523455}, {"color": "#97c2fc", "id": "Caden Novak", "label": "Caden Novak", "shape": "dot", "size": 10, "x": 0.018764064837777657, "y": 0.028849956248523313}, {"color": "#97c2fc", "id": "Axel Griffin", "label": "Axel Griffin", "shape": "dot", "size": 10, "x": 0.018764064837778118, "y": 0.028849956248524718}, {"color": "#97c2fc", "id": "Zane Pena", "label": "Zane Pena", "shape": "dot", "size": 10, "x": 0.018764064837777688, "y": 0.028849956248524218}, {"color": "#97c2fc", "id": "Cole Ward", "label": "Cole Ward", "shape": "dot", "size": 10, "x": 0.018764064837777674, "y": 0.02884995624852365}, {"color": "#97c2fc", "id": "Easton Bell", "label": "Easton Bell", "shape": "dot", "size": 10, "x": 0.018764064837777913, "y": 0.028849956248524232}, {"color": "#97c2fc", "id": "Luke Phillips", "label": "Luke Phillips", "shape": "dot", "size": 10, "x": 0.01876406483777779, "y": 0.02884995624852329}, {"color": "#97c2fc", "id": "Kingston Hamilton", "label": "Kingston Hamilton", "shape": "dot", "size": 10, "x": -0.5273032319270149, "y": -1.0}, {"color": "#97c2fc", "id": "Flynn Stuart", "label": "Flynn Stuart", "shape": "dot", "size": 10, "x": -0.5273032319270152, "y": -1.0}, {"color": "#97c2fc", "id": "Spencer Woodward", "label": "Spencer Woodward", "shape": "dot", "size": 10, "x": 0.01876406483777762, "y": 0.028849956248523278}, {"color": "#97c2fc", "id": "Jason Bailey", "label": "Jason Bailey", "shape": "dot", "size": 10, "x": 0.018764064837777865, "y": 0.028849956248523802}, {"color": "#97c2fc", "id": "Patrick Olsen", "label": "Patrick Olsen", "shape": "dot", "size": 10, "x": 0.01876406483777783, "y": 0.028849956248523684}, {"color": "#97c2fc", "id": "Josiah Perez", "label": "Josiah Perez", "shape": "dot", "size": 10, "x": 0.01876406483777741, "y": 0.02884995624852382}, {"color": "#97c2fc", "id": "Elias Cooper", "label": "Elias Cooper", "shape": "dot", "size": 10, "x": -0.07677029164876187, "y": 0.0635412372232284}, {"color": "#97c2fc", "id": "Andrew Martinez", "label": "Andrew Martinez", "shape": "dot", "size": 10, "x": -0.07677029164876217, "y": 0.06354123722322814}, {"color": "#97c2fc", "id": "Cameron Cox", "label": "Cameron Cox", "shape": "dot", "size": 10, "x": 0.01876406483777706, "y": 0.028849956248523056}, {"color": "#97c2fc", "id": "Jonathan Evans", "label": "Jonathan Evans", "shape": "dot", "size": 10, "x": 0.018764064837777455, "y": 0.028849956248523215}, {"color": "#97c2fc", "id": "Raphael Barron", "label": "Raphael Barron", "shape": "dot", "size": 10, "x": 0.018764064837777764, "y": 0.02884995624852392}, {"color": "#97c2fc", "id": "Malcolm Knox", "label": "Malcolm Knox", "shape": "dot", "size": 10, "x": 0.018764064837777657, "y": 0.02884995624852381}, {"color": "#97c2fc", "id": "Nikolai Weeks", "label": "Nikolai Weeks", "shape": "dot", "size": 10, "x": 0.018764064837777917, "y": 0.028849956248523472}, {"color": "#97c2fc", "id": "Rhett Barton", "label": "Rhett Barton", "shape": "dot", "size": 10, "x": 0.01876406483777762, "y": 0.02884995624852431}, {"color": "#97c2fc", "id": "Levi Mitchell", "label": "Levi Mitchell", "shape": "dot", "size": 10, "x": 0.018764064837777764, "y": 0.028849956248524128}, {"color": "#97c2fc", "id": "Beckett Powell", "label": "Beckett Powell", "shape": "dot", "size": 10, "x": 0.01876406483777798, "y": 0.028849956248524475}, {"color": "#97c2fc", "id": "Elliot Hayes", "label": "Elliot Hayes", "shape": "dot", "size": 10, "x": 0.01876406483777762, "y": 0.02884995624852404}, {"color": "#97c2fc", "id": "Carlos Torres", "label": "Carlos Torres", "shape": "dot", "size": 10, "x": 0.018764064837777917, "y": 0.02884995624852405}, {"color": "#97c2fc", "id": "Isaac Nelson", "label": "Isaac Nelson", "shape": "dot", "size": 10, "x": 0.01876406483777779, "y": 0.028849956248524586}, {"color": "#97c2fc", "id": "Benjamin Miller", "label": "Benjamin Miller", "shape": "dot", "size": 10, "x": 0.018764064837777882, "y": 0.028849956248524336}, {"color": "#97c2fc", "id": "Winston Bruce", "label": "Winston Bruce", "shape": "dot", "size": 10, "x": 0.018764064837777983, "y": 0.02884995624852428}, {"color": "#97c2fc", "id": "Xavier Bryant", "label": "Xavier Bryant", "shape": "dot", "size": 10, "x": 0.018764064837777726, "y": 0.028849956248524253}, {"color": "#97c2fc", "id": "Carter Baker", "label": "Carter Baker", "shape": "dot", "size": 10, "x": 0.01876406483777788, "y": 0.02884995624852415}, {"color": "#97c2fc", "id": "Jaxon Morris", "label": "Jaxon Morris", "shape": "dot", "size": 10, "x": 0.018764064837777913, "y": 0.028849956248524274}, {"color": "#97c2fc", "id": "Joseph Thompson", "label": "Joseph Thompson", "shape": "dot", "size": 10, "x": 0.018764064837777934, "y": 0.02884995624852435}, {"color": "#97c2fc", "id": "Marcus Hughes", "label": "Marcus Hughes", "shape": "dot", "size": 10, "x": 0.01876406483777807, "y": 0.028849956248524797}, {"color": "#97c2fc", "id": "Liam Smith", "label": "Liam Smith", "shape": "dot", "size": 10, "x": 0.01876406483777769, "y": 0.02884995624852398}, {"color": "#97c2fc", "id": "William Thomas", "label": "William Thomas", "shape": "dot", "size": 10, "x": 0.018764064837777938, "y": 0.028849956248524565}, {"color": "#97c2fc", "id": "Bennett Sullivan", "label": "Bennett Sullivan", "shape": "dot", "size": 10, "x": 0.018764064837777754, "y": 0.02884995624852365}, {"color": "#97c2fc", "id": "Wyatt Green", "label": "Wyatt Green", "shape": "dot", "size": 10, "x": 0.018764064837777785, "y": 0.02884995624852424}, {"color": "#97c2fc", "id": "Chance Wallace", "label": "Chance Wallace", "shape": "dot", "size": 10, "x": 0.018764064837778545, "y": 0.028849956248524343}, {"color": "#97c2fc", "id": "Jasper Luna", "label": "Jasper Luna", "shape": "dot", "size": 10, "x": 0.01876406483777779, "y": 0.028849956248521456}, {"color": "#97c2fc", "id": "Nathan Allen", "label": "Nathan Allen", "shape": "dot", "size": 10, "x": 0.018764064837777664, "y": 0.028849956248521727}, {"color": "#97c2fc", "id": "Chandler Parks", "label": "Chandler Parks", "shape": "dot", "size": 10, "x": 0.01876406483777775, "y": 0.02884995624852189}, {"color": "#97c2fc", "id": "Oliver Jones", "label": "Oliver Jones", "shape": "dot", "size": 10, "x": 0.018764064837777636, "y": 0.028849956248521873}, {"color": "#97c2fc", "id": "Lucas Robinson", "label": "Lucas Robinson", "shape": "dot", "size": 10, "x": 0.018764064837777764, "y": 0.028849956248522095}, {"color": "#97c2fc", "id": "Jesse Hawkins", "label": "Jesse Hawkins", "shape": "dot", "size": 10, "x": 0.01876406483777783, "y": 0.02884995624852381}, {"color": "#97c2fc", "id": "Austin Foster", "label": "Austin Foster", "shape": "dot", "size": 10, "x": 0.018764064837777743, "y": 0.02884995624852405}, {"color": "#97c2fc", "id": "Hendrix Huff", "label": "Hendrix Huff", "shape": "dot", "size": 10, "x": 0.018764064837778097, "y": 0.028849956248523857}, {"color": "#97c2fc", "id": "Gabriel Gray", "label": "Gabriel Gray", "shape": "dot", "size": 10, "x": 0.018764064837777705, "y": 0.028849956248523222}, {"color": "#97c2fc", "id": "Oscar Reynolds", "label": "Oscar Reynolds", "shape": "dot", "size": 10, "x": 0.018764064837777567, "y": 0.028849956248523267}, {"color": "#97c2fc", "id": "Richard Harrington", "label": "Richard Harrington", "shape": "dot", "size": 10, "x": 0.01876406483777781, "y": 0.02884995624852446}, {"color": "#97c2fc", "id": "Lucian Wu", "label": "Lucian Wu", "shape": "dot", "size": 10, "x": 0.018764064837777768, "y": 0.028849956248524426}, {"color": "#97c2fc", "id": "Anthony Hill", "label": "Anthony Hill", "shape": "dot", "size": 10, "x": 0.018764064837777938, "y": 0.02884995624852413}, {"color": "#97c2fc", "id": "Jeremiah Murphy", "label": "Jeremiah Murphy", "shape": "dot", "size": 10, "x": 0.018764064837778253, "y": 0.028849956248523746}, {"color": "#97c2fc", "id": "Enzo Espinoza", "label": "Enzo Espinoza", "shape": "dot", "size": 10, "x": 0.018764064837777917, "y": 0.02884995624852446}, {"color": "#97c2fc", "id": "Gideon Shea", "label": "Gideon Shea", "shape": "dot", "size": 10, "x": 0.018764064837778118, "y": 0.028849956248523437}, {"color": "#97c2fc", "id": "Jack Lopez", "label": "Jack Lopez", "shape": "dot", "size": 10, "x": 0.01876406483777783, "y": 0.02884995624852465}, {"color": "#97c2fc", "id": "Gabriel Lee", "label": "Gabriel Lee", "shape": "dot", "size": 10, "x": 0.018764064837777757, "y": 0.028849956248524662}, {"color": "#97c2fc", "id": "Dennis Lutz", "label": "Dennis Lutz", "shape": "dot", "size": 10, "x": 0.01876406483777799, "y": 0.028849956248524832}, {"color": "#97c2fc", "id": "Kieran Pruitt", "label": "Kieran Pruitt", "shape": "dot", "size": 10, "x": 0.018764064837777896, "y": 0.02884995624852454}, {"color": "#97c2fc", "id": "Sterling Hickman", "label": "Sterling Hickman", "shape": "dot", "size": 10, "x": 0.018764064837778024, "y": 0.028849956248524974}, {"color": "#97c2fc", "id": "Lawrence Cervantes", "label": "Lawrence Cervantes", "shape": "dot", "size": 10, "x": 0.018764064837777785, "y": 0.028849956248525134}, {"color": "#97c2fc", "id": "Christopher Clark", "label": "Christopher Clark", "shape": "dot", "size": 10, "x": 0.018764064837778104, "y": 0.02884995624852429}, {"color": "#97c2fc", "id": "Samuel Harris", "label": "Samuel Harris", "shape": "dot", "size": 10, "x": 0.01876406483777796, "y": 0.02884995624852412}, {"color": "#97c2fc", "id": "Caleb Turner", "label": "Caleb Turner", "shape": "dot", "size": 10, "x": 0.018764064837777962, "y": 0.02884995624852469}, {"color": "#97c2fc", "id": "Declan Patterson", "label": "Declan Patterson", "shape": "dot", "size": 10, "x": 0.018764064837778417, "y": 0.028849956248524142}, {"color": "#97c2fc", "id": "Lincoln Peterson", "label": "Lincoln Peterson", "shape": "dot", "size": 10, "x": 0.018764064837778347, "y": 0.028849956248524086}, {"color": "#97c2fc", "id": "Lorenzo Woods", "label": "Lorenzo Woods", "shape": "dot", "size": 10, "x": 0.018764064837777827, "y": 0.028849956248523267}, {"color": "#97c2fc", "id": "Chase Wood", "label": "Chase Wood", "shape": "dot", "size": 10, "x": 0.018764064837777827, "y": 0.02884995624852341}, {"color": "#97c2fc", "id": "Thaddeus Noble", "label": "Thaddeus Noble", "shape": "dot", "size": 10, "x": 0.018764064837778, "y": 0.028849956248523625}, {"color": "#97c2fc", "id": "Alexander Taylor", "label": "Alexander Taylor", "shape": "dot", "size": 10, "x": 0.01876406483777773, "y": 0.02884995624852261}, {"color": "#97c2fc", "id": "Ezekiel Gonzales", "label": "Ezekiel Gonzales", "shape": "dot", "size": 10, "x": 0.01876406483777751, "y": 0.028849956248523045}, {"color": "#97c2fc", "id": "Damian Harrison", "label": "Damian Harrison", "shape": "dot", "size": 10, "x": 0.018764064837777598, "y": 0.028849956248522973}, {"color": "#97c2fc", "id": "Leo Adams", "label": "Leo Adams", "shape": "dot", "size": 10, "x": 0.01876406483777813, "y": 0.028849956248523483}, {"color": "#97c2fc", "id": "James Anderson", "label": "James Anderson", "shape": "dot", "size": 10, "x": 0.018764064837777872, "y": 0.028849956248523507}, {"color": "#97c2fc", "id": "Tristan James", "label": "Tristan James", "shape": "dot", "size": 10, "x": 0.01876406483777817, "y": 0.02884995624852398}, {"color": "#97c2fc", "id": "Isaac Walker", "label": "Isaac Walker", "shape": "dot", "size": 10, "x": 0.018764064837777927, "y": 0.02884995624852403}, {"color": "#97c2fc", "id": "Adam Rivera", "label": "Adam Rivera", "shape": "dot", "size": 10, "x": 0.01876406483777796, "y": 0.028849956248524142}, {"color": "#97c2fc", "id": "Colton Henderson", "label": "Colton Henderson", "shape": "dot", "size": 10, "x": 0.14742010493847726, "y": 0.6310525750929414}, {"color": "#97c2fc", "id": "Lucius Franco", "label": "Lucius Franco", "shape": "dot", "size": 10, "x": 0.14742010493847688, "y": 0.6310525750929407}, {"color": "#97c2fc", "id": "Leo Brewer", "label": "Leo Brewer", "shape": "dot", "size": 10, "x": -0.0959125611208916, "y": 0.04726816684167148}, {"color": "#97c2fc", "id": "Blake Sanders", "label": "Blake Sanders", "shape": "dot", "size": 10, "x": -0.09591256112089051, "y": 0.047268166841671774}, {"color": "#97c2fc", "id": "Jackson Rodriguez", "label": "Jackson Rodriguez", "shape": "dot", "size": 10, "x": 0.018764064837777913, "y": 0.02884995624852438}, {"color": "#97c2fc", "id": "Roman Simmons", "label": "Roman Simmons", "shape": "dot", "size": 10, "x": 0.018764064837777872, "y": 0.028849956248524183}, {"color": "#97c2fc", "id": "Noah Johnson", "label": "Noah Johnson", "shape": "dot", "size": 10, "x": 0.018764064837777997, "y": 0.02884995624852463}, {"color": "#97c2fc", "id": "Cole Stewart", "label": "Cole Stewart", "shape": "dot", "size": 10, "x": 0.018764064837777678, "y": 0.02884995624852405}, {"color": "#97c2fc", "id": "Zayn Gould", "label": "Zayn Gould", "shape": "dot", "size": 10, "x": 0.1432977669469369, "y": -0.4030786070189761}, {"color": "#97c2fc", "id": "Killian Kent", "label": "Killian Kent", "shape": "dot", "size": 10, "x": 0.14329776694693686, "y": -0.40307860701897663}, {"color": "#97c2fc", "id": "Dylan Scott", "label": "Dylan Scott", "shape": "dot", "size": 10, "x": 0.14329776694693697, "y": -0.40307860701897646}, {"color": "#97c2fc", "id": "Thomas Carter", "label": "Thomas Carter", "shape": "dot", "size": 10, "x": 0.14329776694693683, "y": -0.4030786070189771}, {"color": "#97c2fc", "id": "Anders Crosby", "label": "Anders Crosby", "shape": "dot", "size": 10, "x": 0.14329776694693752, "y": -0.40307860701897646}, {"color": "#97c2fc", "id": "Mateo Ramirez", "label": "Mateo Ramirez", "shape": "dot", "size": 10, "x": 0.018764064837777178, "y": 0.028849956248526702}, {"color": "#97c2fc", "id": "Ronald Salazar", "label": "Ronald Salazar", "shape": "dot", "size": 10, "x": 0.01876406483777726, "y": 0.028849956248526407}, {"color": "#97c2fc", "id": "River Ellis", "label": "River Ellis", "shape": "dot", "size": 10, "x": 0.018764064837777723, "y": 0.02884995624852585}, {"color": "#97c2fc", "id": "Maximus Cole", "label": "Maximus Cole", "shape": "dot", "size": 10, "x": -0.8023116407897258, "y": -0.019854906861941368}, {"color": "#97c2fc", "id": "Logan Lewis", "label": "Logan Lewis", "shape": "dot", "size": 10, "x": -0.8023116407897262, "y": -0.01985490686194128}, {"color": "#97c2fc", "id": "Rory Briggs", "label": "Rory Briggs", "shape": "dot", "size": 10, "x": -0.802311640789726, "y": -0.019854906861940917}, {"color": "#97c2fc", "id": "Cole Brooks", "label": "Cole Brooks", "shape": "dot", "size": 10, "x": 0.01876406483777814, "y": 0.028849956248524072}, {"color": "#97c2fc", "id": "Julian King", "label": "Julian King", "shape": "dot", "size": 10, "x": 0.018764064837777976, "y": 0.028849956248524045}, {"color": "#97c2fc", "id": "David Parker", "label": "David Parker", "shape": "dot", "size": 10, "x": 0.018764064837777962, "y": 0.028849956248524405}, {"color": "#97c2fc", "id": "Walter Kim", "label": "Walter Kim", "shape": "dot", "size": 10, "x": 0.018764064837778097, "y": 0.028849956248524537}, {"color": "#97c2fc", "id": "Peter Alexander", "label": "Peter Alexander", "shape": "dot", "size": 10, "x": 0.018764064837777858, "y": 0.02884995624852433}, {"color": "#97c2fc", "id": "Jorge Fox", "label": "Jorge Fox", "shape": "dot", "size": 10, "x": 0.018764064837778146, "y": 0.028849956248524537}, {"color": "#97c2fc", "id": "Damon Banks", "label": "Damon Banks", "shape": "dot", "size": 10, "x": 0.018764064837777837, "y": 0.028849956248523857}, {"color": "#97c2fc", "id": "Hayden West", "label": "Hayden West", "shape": "dot", "size": 10, "x": 0.018764064837778285, "y": 0.028849956248523982}, {"color": "#97c2fc", "id": "Jaxson Washington", "label": "Jaxson Washington", "shape": "dot", "size": 10, "x": 0.01876406483777812, "y": 0.02884995624852371}, {"color": "#97c2fc", "id": "Ryan Hall", "label": "Ryan Hall", "shape": "dot", "size": 10, "x": 0.018764064837777802, "y": 0.028849956248522563}, {"color": "#97c2fc", "id": "Silas Jenkins", "label": "Silas Jenkins", "shape": "dot", "size": 10, "x": 0.018764064837778295, "y": 0.028849956248523535}, {"color": "#97c2fc", "id": "Braxton Warren", "label": "Braxton Warren", "shape": "dot", "size": 10, "x": 0.14329776694693683, "y": -0.40307860701897674}, {"color": "#97c2fc", "id": "Elijah Moore", "label": "Elijah Moore", "shape": "dot", "size": 10, "x": 0.0187640648377778, "y": 0.028849956248522542}, {"color": "#97c2fc", "id": "Simon Cline", "label": "Simon Cline", "shape": "dot", "size": 10, "x": 0.018764064837777567, "y": 0.02884995624852264}, {"color": "#97c2fc", "id": "Iker Fisher", "label": "Iker Fisher", "shape": "dot", "size": 10, "x": 0.018764064837778125, "y": 0.028849956248522452}, {"color": "#97c2fc", "id": "Greyson Ross", "label": "Greyson Ross", "shape": "dot", "size": 10, "x": 0.018764064837777917, "y": 0.028849956248522414}, {"color": "#97c2fc", "id": "Bentley Price", "label": "Bentley Price", "shape": "dot", "size": 10, "x": 0.01876406483777775, "y": 0.02884995624852382}, {"color": "#97c2fc", "id": "Finn Perry", "label": "Finn Perry", "shape": "dot", "size": 10, "x": 0.018764064837777983, "y": 0.02884995624852437}, {"color": "#97c2fc", "id": "Brody Flores", "label": "Brody Flores", "shape": "dot", "size": 10, "x": 0.01876406483777742, "y": 0.028849956248522716}, {"color": "#97c2fc", "id": "Barrett Gibson", "label": "Barrett Gibson", "shape": "dot", "size": 10, "x": 0.018764064837777976, "y": 0.028849956248523132}, {"color": "#97c2fc", "id": "Charles Diaz", "label": "Charles Diaz", "shape": "dot", "size": 10, "x": 0.01876406483777804, "y": 0.028849956248523045}, {"color": "#97c2fc", "id": "Malik Cortez", "label": "Malik Cortez", "shape": "dot", "size": 10, "x": 0.018764064837777896, "y": 0.02884995624852581}, {"color": "#97c2fc", "id": "Caleb Davis", "label": "Caleb Davis", "shape": "dot", "size": 10, "x": -0.0665650884127189, "y": 0.27224606088639425}, {"color": "#97c2fc", "id": "Aaron Edwards", "label": "Aaron Edwards", "shape": "dot", "size": 10, "x": -0.06656508841271919, "y": 0.27224606088639414}, {"color": "#97c2fc", "id": "Dominic Rogers", "label": "Dominic Rogers", "shape": "dot", "size": 10, "x": -0.527303231927015, "y": -1.0}, {"color": "#97c2fc", "id": "Emmanuel Chambers", "label": "Emmanuel Chambers", "shape": "dot", "size": 10, "x": 0.5586590514681914, "y": 0.03718770076696025}, {"color": "#97c2fc", "id": "Cooper Kelly", "label": "Cooper Kelly", "shape": "dot", "size": 10, "x": 0.5586590514681918, "y": 0.03718770076696001}, {"color": "#97c2fc", "id": "David Garcia", "label": "David Garcia", "shape": "dot", "size": 10, "x": 0.01876406483777757, "y": 0.028849956248522404}, {"color": "#97c2fc", "id": "Nolan Morgan", "label": "Nolan Morgan", "shape": "dot", "size": 10, "x": 0.018764064837777372, "y": 0.0288499562485223}, {"color": "#97c2fc", "id": "Dominic Barnes", "label": "Dominic Barnes", "shape": "dot", "size": 10, "x": 0.01876406483777787, "y": 0.028849956248524513}, {"color": "#97c2fc", "id": "Daniel White", "label": "Daniel White", "shape": "dot", "size": 10, "x": 0.018764064837778115, "y": 0.028849956248524287}, {"color": "#97c2fc", "id": "Abel Mendoza", "label": "Abel Mendoza", "shape": "dot", "size": 10, "x": 0.018764064837777775, "y": 0.028849956248524638}, {"color": "#97c2fc", "id": "Tucker Castro", "label": "Tucker Castro", "shape": "dot", "size": 10, "x": 0.01876406483777819, "y": 0.028849956248524808}]);
+                  edges = new vis.DataSet([{"from": "Connor Young", "to": "Sebastian Gonzalez", "width": 1}, {"from": "Connor Young", "to": "Ignatius Gaines", "width": 1}, {"from": "Ignatius Gaines", "to": "Matthew Martin", "width": 1}, {"from": "Ignatius Gaines", "to": "Jeremiah Myers", "width": 1}, {"from": "Ignatius Gaines", "to": "Tyson Bush", "width": 1}, {"from": "Ignatius Gaines", "to": "Zander Buchanan", "width": 1}, {"from": "Ignatius Gaines", "to": "Leon Kirk", "width": 1}, {"from": "Derek Barnes", "to": "Zayden Coleman", "width": 1}, {"from": "Derek Barnes", "to": "Bryce Montgomery", "width": 1}, {"from": "Derek Barnes", "to": "Jude Graham", "width": 1}, {"from": "Zayden Coleman", "to": "Caden Novak", "width": 1}, {"from": "Zayden Coleman", "to": "Axel Griffin", "width": 1}, {"from": "Zayden Coleman", "to": "Zane Pena", "width": 1}, {"from": "Zayden Coleman", "to": "Cole Ward", "width": 1}, {"from": "Zayden Coleman", "to": "Easton Bell", "width": 1}, {"from": "Zayden Coleman", "to": "Luke Phillips", "width": 1}, {"from": "Kingston Hamilton", "to": "Kingston Hamilton", "width": 1}, {"from": "Kingston Hamilton", "to": "Flynn Stuart", "width": 1}, {"from": "Spencer Woodward", "to": "Jason Bailey", "width": 1}, {"from": "Jason Bailey", "to": "Patrick Olsen", "width": 1}, {"from": "Jason Bailey", "to": "Easton Bell", "width": 1}, {"from": "Jason Bailey", "to": "Josiah Perez", "width": 1}, {"from": "Elias Cooper", "to": "Andrew Martinez", "width": 1}, {"from": "Cameron Cox", "to": "Jonathan Evans", "width": 1}, {"from": "Jonathan Evans", "to": "Raphael Barron", "width": 1}, {"from": "Jonathan Evans", "to": "Malcolm Knox", "width": 1}, {"from": "Jonathan Evans", "to": "Nikolai Weeks", "width": 1}, {"from": "Rhett Barton", "to": "Levi Mitchell", "width": 1}, {"from": "Rhett Barton", "to": "Beckett Powell", "width": 1}, {"from": "Rhett Barton", "to": "Elliot Hayes", "width": 1}, {"from": "Rhett Barton", "to": "Carlos Torres", "width": 1}, {"from": "Levi Mitchell", "to": "Zane Pena", "width": 1}, {"from": "Levi Mitchell", "to": "Carlos Torres", "width": 1}, {"from": "Levi Mitchell", "to": "Easton Bell", "width": 1}, {"from": "Levi Mitchell", "to": "Isaac Nelson", "width": 1}, {"from": "Levi Mitchell", "to": "Benjamin Miller", "width": 1}, {"from": "Levi Mitchell", "to": "Winston Bruce", "width": 1}, {"from": "Levi Mitchell", "to": "Beckett Powell", "width": 1}, {"from": "Levi Mitchell", "to": "Xavier Bryant", "width": 1}, {"from": "Levi Mitchell", "to": "Carter Baker", "width": 1}, {"from": "Levi Mitchell", "to": "Jaxon Morris", "width": 1}, {"from": "Beckett Powell", "to": "Joseph Thompson", "width": 1}, {"from": "Beckett Powell", "to": "Zane Pena", "width": 1}, {"from": "Beckett Powell", "to": "Carlos Torres", "width": 1}, {"from": "Beckett Powell", "to": "Marcus Hughes", "width": 1}, {"from": "Beckett Powell", "to": "Liam Smith", "width": 1}, {"from": "Beckett Powell", "to": "Easton Bell", "width": 1}, {"from": "Beckett Powell", "to": "William Thomas", "width": 1}, {"from": "Beckett Powell", "to": "Bennett Sullivan", "width": 1}, {"from": "Beckett Powell", "to": "Benjamin Miller", "width": 1}, {"from": "Beckett Powell", "to": "Wyatt Green", "width": 1}, {"from": "Beckett Powell", "to": "Jaxon Morris", "width": 1}, {"from": "Elliot Hayes", "to": "Carter Baker", "width": 1}, {"from": "Carlos Torres", "to": "Chance Wallace", "width": 1}, {"from": "Jasper Luna", "to": "Nathan Allen", "width": 1}, {"from": "Jasper Luna", "to": "Chandler Parks", "width": 1}, {"from": "Nathan Allen", "to": "Chandler Parks", "width": 1}, {"from": "Nathan Allen", "to": "Oliver Jones", "width": 1}, {"from": "Nathan Allen", "to": "Lucas Robinson", "width": 1}, {"from": "Jesse Hawkins", "to": "Tyson Bush", "width": 1}, {"from": "Jesse Hawkins", "to": "Austin Foster", "width": 1}, {"from": "Jesse Hawkins", "to": "Hendrix Huff", "width": 1}, {"from": "Jesse Hawkins", "to": "Gabriel Gray", "width": 1}, {"from": "Tyson Bush", "to": "Matthew Martin", "width": 1}, {"from": "Tyson Bush", "to": "Oscar Reynolds", "width": 1}, {"from": "Tyson Bush", "to": "Austin Foster", "width": 1}, {"from": "Austin Foster", "to": "Richard Harrington", "width": 1}, {"from": "Austin Foster", "to": "Lucian Wu", "width": 1}, {"from": "Austin Foster", "to": "Anthony Hill", "width": 1}, {"from": "Hendrix Huff", "to": "Jeremiah Murphy", "width": 1}, {"from": "Hendrix Huff", "to": "Enzo Espinoza", "width": 1}, {"from": "Hendrix Huff", "to": "Matthew Martin", "width": 1}, {"from": "Hendrix Huff", "to": "Gideon Shea", "width": 1}, {"from": "Jack Lopez", "to": "Gabriel Lee", "width": 1}, {"from": "Jack Lopez", "to": "William Thomas", "width": 1}, {"from": "Jack Lopez", "to": "Dennis Lutz", "width": 1}, {"from": "Jack Lopez", "to": "Kieran Pruitt", "width": 1}, {"from": "Jack Lopez", "to": "Sterling Hickman", "width": 1}, {"from": "Gabriel Lee", "to": "Lawrence Cervantes", "width": 1}, {"from": "Gabriel Lee", "to": "Christopher Clark", "width": 1}, {"from": "William Thomas", "to": "Dennis Lutz", "width": 1}, {"from": "Dennis Lutz", "to": "Sterling Hickman", "width": 1}, {"from": "Kieran Pruitt", "to": "Richard Harrington", "width": 1}, {"from": "Kieran Pruitt", "to": "Samuel Harris", "width": 1}, {"from": "Kieran Pruitt", "to": "Caleb Turner", "width": 1}, {"from": "Declan Patterson", "to": "Lincoln Peterson", "width": 1}, {"from": "Declan Patterson", "to": "Chance Wallace", "width": 1}, {"from": "Lorenzo Woods", "to": "Bennett Sullivan", "width": 1}, {"from": "Lorenzo Woods", "to": "Caden Novak", "width": 1}, {"from": "Lorenzo Woods", "to": "Chase Wood", "width": 1}, {"from": "Lorenzo Woods", "to": "Thaddeus Noble", "width": 1}, {"from": "Lorenzo Woods", "to": "Alexander Taylor", "width": 1}, {"from": "Bennett Sullivan", "to": "Caden Novak", "width": 1}, {"from": "Caden Novak", "to": "Oscar Reynolds", "width": 1}, {"from": "Caden Novak", "to": "Ezekiel Gonzales", "width": 1}, {"from": "Caden Novak", "to": "Damian Harrison", "width": 1}, {"from": "Jeremiah Murphy", "to": "Gideon Shea", "width": 1}, {"from": "Jeremiah Murphy", "to": "Leo Adams", "width": 1}, {"from": "James Anderson", "to": "Tristan James", "width": 1}, {"from": "Tristan James", "to": "Isaac Walker", "width": 1}, {"from": "Tristan James", "to": "Adam Rivera", "width": 1}, {"from": "Colton Henderson", "to": "Lucius Franco", "width": 1}, {"from": "Leo Brewer", "to": "Blake Sanders", "width": 1}, {"from": "Jackson Rodriguez", "to": "Joseph Thompson", "width": 1}, {"from": "Jackson Rodriguez", "to": "Isaac Walker", "width": 1}, {"from": "Jackson Rodriguez", "to": "Roman Simmons", "width": 1}, {"from": "Jackson Rodriguez", "to": "Noah Johnson", "width": 1}, {"from": "Joseph Thompson", "to": "Samuel Harris", "width": 1}, {"from": "Joseph Thompson", "to": "Winston Bruce", "width": 1}, {"from": "Joseph Thompson", "to": "Cole Stewart", "width": 1}, {"from": "Zayn Gould", "to": "Killian Kent", "width": 1}, {"from": "Killian Kent", "to": "Dylan Scott", "width": 1}, {"from": "Killian Kent", "to": "Thomas Carter", "width": 1}, {"from": "Killian Kent", "to": "Anders Crosby", "width": 1}, {"from": "Matthew Martin", "to": "Samuel Harris", "width": 1}, {"from": "Matthew Martin", "to": "Cole Ward", "width": 1}, {"from": "Mateo Ramirez", "to": "Ronald Salazar", "width": 1}, {"from": "Ronald Salazar", "to": "River Ellis", "width": 1}, {"from": "Maximus Cole", "to": "Logan Lewis", "width": 1}, {"from": "Maximus Cole", "to": "Rory Briggs", "width": 1}, {"from": "Logan Lewis", "to": "Rory Briggs", "width": 1}, {"from": "Bryce Montgomery", "to": "Alexander Taylor", "width": 1}, {"from": "Bryce Montgomery", "to": "Jude Graham", "width": 1}, {"from": "Alexander Taylor", "to": "Oliver Jones", "width": 1}, {"from": "Alexander Taylor", "to": "Lucas Robinson", "width": 1}, {"from": "Samuel Harris", "to": "Christopher Clark", "width": 1}, {"from": "Samuel Harris", "to": "Cole Brooks", "width": 1}, {"from": "Samuel Harris", "to": "Julian King", "width": 1}, {"from": "Richard Harrington", "to": "Caleb Turner", "width": 1}, {"from": "Richard Harrington", "to": "Lucian Wu", "width": 1}, {"from": "Caleb Turner", "to": "Marcus Hughes", "width": 1}, {"from": "Oscar Reynolds", "to": "Damian Harrison", "width": 1}, {"from": "David Parker", "to": "Zander Buchanan", "width": 1}, {"from": "Zander Buchanan", "to": "Adam Rivera", "width": 1}, {"from": "Zander Buchanan", "to": "Wyatt Green", "width": 1}, {"from": "Zander Buchanan", "to": "Walter Kim", "width": 1}, {"from": "Zander Buchanan", "to": "Isaac Walker", "width": 1}, {"from": "Anthony Hill", "to": "Carter Baker", "width": 1}, {"from": "Anthony Hill", "to": "Peter Alexander", "width": 1}, {"from": "Christopher Clark", "to": "Jorge Fox", "width": 1}, {"from": "Christopher Clark", "to": "Damon Banks", "width": 1}, {"from": "Cole Brooks", "to": "Hayden West", "width": 1}, {"from": "Gideon Shea", "to": "Leo Adams", "width": 1}, {"from": "Gideon Shea", "to": "Jaxson Washington", "width": 1}, {"from": "Gideon Shea", "to": "Ryan Hall", "width": 1}, {"from": "Leo Adams", "to": "Silas Jenkins", "width": 1}, {"from": "Braxton Warren", "to": "Thomas Carter", "width": 1}, {"from": "Elijah Moore", "to": "Simon Cline", "width": 1}, {"from": "Elijah Moore", "to": "Iker Fisher", "width": 1}, {"from": "Elijah Moore", "to": "Greyson Ross", "width": 1}, {"from": "Simon Cline", "to": "Ryan Hall", "width": 1}, {"from": "Iker Fisher", "to": "Ryan Hall", "width": 1}, {"from": "Chase Wood", "to": "Thaddeus Noble", "width": 1}, {"from": "Easton Bell", "to": "Raphael Barron", "width": 1}, {"from": "Easton Bell", "to": "Damon Banks", "width": 1}, {"from": "Easton Bell", "to": "Benjamin Miller", "width": 1}, {"from": "Easton Bell", "to": "Bentley Price", "width": 1}, {"from": "Easton Bell", "to": "Wyatt Green", "width": 1}, {"from": "Easton Bell", "to": "Jaxon Morris", "width": 1}, {"from": "Finn Perry", "to": "Walter Kim", "width": 1}, {"from": "Walter Kim", "to": "Roman Simmons", "width": 1}, {"from": "Damian Harrison", "to": "Ezekiel Gonzales", "width": 1}, {"from": "Damian Harrison", "to": "Brody Flores", "width": 1}, {"from": "Raphael Barron", "to": "Damon Banks", "width": 1}, {"from": "Raphael Barron", "to": "Bentley Price", "width": 1}, {"from": "Isaac Walker", "to": "Roman Simmons", "width": 1}, {"from": "Adam Rivera", "to": "Roman Simmons", "width": 1}, {"from": "Wyatt Green", "to": "Malcolm Knox", "width": 1}, {"from": "Silas Jenkins", "to": "Barrett Gibson", "width": 1}, {"from": "Barrett Gibson", "to": "Charles Diaz", "width": 1}, {"from": "River Ellis", "to": "Lawrence Cervantes", "width": 1}, {"from": "River Ellis", "to": "Malik Cortez", "width": 1}, {"from": "Caleb Davis", "to": "Aaron Edwards", "width": 1}, {"from": "Isaac Nelson", "to": "Isaac Nelson", "width": 1}, {"from": "Dominic Rogers", "to": "Flynn Stuart", "width": 1}, {"from": "Damon Banks", "to": "Bentley Price", "width": 1}, {"from": "Liam Smith", "to": "Malcolm Knox", "width": 1}, {"from": "Emmanuel Chambers", "to": "Cooper Kelly", "width": 1}, {"from": "Brody Flores", "to": "Brody Flores", "width": 1}, {"from": "David Garcia", "to": "Nolan Morgan", "width": 1}, {"from": "David Garcia", "to": "Ryan Hall", "width": 1}, {"from": "Carter Baker", "to": "Peter Alexander", "width": 1}, {"from": "Carter Baker", "to": "Jaxon Morris", "width": 1}, {"from": "Peter Alexander", "to": "Jaxon Morris", "width": 1}, {"from": "Jaxon Morris", "to": "Dominic Barnes", "width": 1}, {"from": "Jaxon Morris", "to": "Daniel White", "width": 1}, {"from": "Bentley Price", "to": "Julian King", "width": 1}, {"from": "Roman Simmons", "to": "Abel Mendoza", "width": 1}, {"from": "Noah Johnson", "to": "Tucker Castro", "width": 1}, {"from": "Noah Johnson", "to": "Jorge Fox", "width": 1}, {"from": "Tucker Castro", "to": "Jorge Fox", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
