@@ -5,8 +5,6 @@ from pyvis.network import Network
 from networkx.algorithms import community
 import matplotlib.colors as mcolors
 import numpy as np
-import pdfkit
-from io import BytesIO
 
 def create_graph(df, source_col_name = "source", target_col_name = "target"):
     graph = nx.Graph()
