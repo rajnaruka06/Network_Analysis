@@ -7,10 +7,10 @@ import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
 
-def create_graph(df):
+def create_graph(network_df):
     graph = nx.Graph()
-    for i in range(len(df)):
-        graph.add_edge(df['source'][i], df['target'][i])
+    for i in range(len(network_df)):
+        graph.add_edge(network_df['source'][i], network_df['target'][i])
     
     return graph
 
@@ -122,10 +122,10 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(df):
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute):
     return "Work in Progress"
 
-def perform_alaam_analysis(df):
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute):
     return "Work in Progress"
 
 def _read_csv(upload_file):
@@ -161,6 +161,7 @@ def _read_excel(uploaded_file):
 if __name__ == "__main__":
 
     st.title("Network Analysis App")
+    st.sidebar.title("Options")
 
     # File Upload FUnctionality
     st.sidebar.title("Upload File")
@@ -172,21 +173,21 @@ if __name__ == "__main__":
 
         with st.spinner("Uploading file..."):
             if uploaded_file.name.endswith(".csv"):
-                df = _read_csv(uploaded_file)
+                network_df = _read_csv(uploaded_file)
             else:
-                attributes, df =  _read_excel(uploaded_file)
+                attribute_df, network_df =  _read_excel(uploaded_file)
 
         progress_bar.progress(100)
         st.sidebar.success("File Uploaded Successfully!")
 
-        graph = create_graph(df)
+        graph = create_graph(network_df)
         network_statistics = calculate_network_statistics(graph)
 
         # Network Visualization and Metrics
         st.sidebar.title("Select Visual Metrics")
         visual_metrics_list = ("Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality",
                             "PageRank", "HITS Hub Scores", "HITS Authority Scores")
-        selected_visual_metrics = st.sidebar.radio("Select Visual Metrics", visual_metrics_list)
+        selected_visual_metrics = st.sidebar.selectbox("Select Visual Metrics", visual_metrics_list)
 
         st.header("Network Visualization")
         st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
@@ -221,14 +222,15 @@ if __name__ == "__main__":
         # Statistical Modeling
         st.sidebar.title("Select Statistical Model")
         selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
+        selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
         if selected_model == "ERGM":
             st.header("ERGM Analysis")
-            ergm_results = perform_ergm_analysis(df)
+            ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute)
             st.write("ERGM Results:")
             st.write(ergm_results)
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
-            alaam_results = perform_alaam_analysis(df)
+            alaam_results = perform_alaam_analysis(network_df, attribute_df, selected_attribute)
             st.write("ALAAM Results:")
             st.write(alaam_results)
 
