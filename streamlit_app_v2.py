@@ -5,27 +5,33 @@ from pyvis.network import Network
 from networkx.algorithms import community
 import matplotlib.colors as mcolors
 import numpy as np
+from openpyxl import load_workbook
 
-def create_graph(df, source_col_name = "source", target_col_name = "target"):
+def create_graph(df):
     graph = nx.Graph()
     for i in range(len(df)):
-        graph.add_edge(df[source_col_name][i], df[target_col_name][i])
+        graph.add_edge(df['source'][i], df['target'][i])
     
     return graph
 
 def calculate_network_statistics(graph):
+    
+    connected_flag = nx.is_connected(graph)
+    if not connected_flag:
+        st.warning("The network is not connected. Some network Statistics can not be claculated.")
+
     number_of_nodes = graph.number_of_nodes()
     number_of_edges = graph.number_of_edges()
     average_degree = sum(dict(graph.degree()).values()) / graph.number_of_nodes()
     density = nx.density(graph)
     clustering_coefficient = nx.average_clustering(graph)
-    average_shortest_path_length = nx.average_shortest_path_length(graph)
-    diameter = nx.diameter(graph)
+    average_shortest_path_length = nx.average_shortest_path_length(graph) if connected_flag else "Can't calculate Graph is not connected"
+    diameter = nx.diameter(graph) if connected_flag else "Can't calculate Graph is not connected"
     degree_centrality = nx.degree_centrality(graph)
     closeness_centrality = nx.closeness_centrality(graph)
     betweenness_centrality = nx.betweenness_centrality(graph)
-    eigenvector_centrality = nx.eigenvector_centrality(graph)
-    pagerank = nx.pagerank(graph)
+    eigenvector_centrality = nx.eigenvector_centrality(graph, max_iter=500)
+    pagerank = nx.pagerank(graph, max_iter=500)
     hits = nx.hits(graph)
 
     communities = community.louvain_communities(graph)
@@ -58,7 +64,7 @@ def calculate_network_statistics(graph):
     }
     return statstics
 
-def create_network_visualization(graph, selected_visual_metrics, network_statistics):
+def create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate):
     nt = Network()
     nt.from_nx(graph)
     pos = nx.spectral_layout(graph)
@@ -71,10 +77,11 @@ def create_network_visualization(graph, selected_visual_metrics, network_statist
             if node_dict['id'] == node:
                 node_dict['x'] = coords[0]
                 node_dict['y'] = coords[1]
-                node_label = f"ID: {node}"
                 metric_value = network_statistics[selected_visual_metrics][node]
-                node_label += f", {selected_visual_metrics}: {metric_value:.2f}"
-                node_dict['label'] = node_label
+                if annotate:
+                    node_label = f"ID: {node}"
+                    node_label += f", {selected_visual_metrics}: {metric_value:.2f}"
+                    node_dict['label'] = node_label
                 color_density = (metric_value - min_metric_value) / (max_metric_value - min_metric_value)
                 node_dict['color'] = f"rgba(0, 0, 255, {color_density})"
                 break
@@ -115,12 +122,40 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(df, source_column, destination_column):
+def perform_ergm_analysis(df):
     return "Work in Progress"
 
-def perform_alaam_analysis(df, source_column, destination_column):
+def perform_alaam_analysis(df):
     return "Work in Progress"
 
+def _read_csv(upload_file):
+    df = pd.read_csv(upload_file)
+    df.columns = ['source', 'target']
+    df = df.astype(str)
+    for col in df.columns:
+        df[col] = df[col].str.strip()
+    df.dropna(inplace=True)
+    df.drop_duplicates(inplace=True)
+    return df
+
+def _read_excel(uploaded_file):
+    wb = load_workbook(uploaded_file)
+    sheet_names = wb.sheetnames
+    attribute_sheet = sheet_names[0]
+    attributes = pd.read_excel(uploaded_file, sheet_name=attribute_sheet)
+    attrbutes = attributes.astype(str)
+    attrbutes.colunms = ['NodeID'] + attributes.columns[1:]
+
+    edge_sheet = st.sidebar.selectbox("Select Network Sheet", sheet_names[1:])
+    edges = pd.read_excel(uploaded_file, sheet_name=edge_sheet)
+    edges = edges.astype(str)
+    edges.columns = ['source', 'target']
+    for col in edges.columns:
+        edges[col] = edges[col].str.strip()
+    edges.dropna(inplace=True)
+    edges.drop_duplicates(inplace=True)
+
+    return attributes, edges
 
 
 if __name__ == "__main__":
@@ -128,22 +163,23 @@ if __name__ == "__main__":
     st.title("Network Analysis App")
 
     # File Upload FUnctionality
-    st.sidebar.title("Upload CSV File")
-    uploaded_file = st.sidebar.file_uploader("Upload CSV", type=["csv"])
+    st.sidebar.title("Upload File")
+    uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=["csv", "xlsx"])
+
     if uploaded_file is not None:
+
         progress_bar = st.sidebar.progress(0)
+
         with st.spinner("Uploading file..."):
-            df = pd.read_csv(uploaded_file)
-            for col in df.columns: df[col] = df[col].astype(str)
+            if uploaded_file.name.endswith(".csv"):
+                df = _read_csv(uploaded_file)
+            else:
+                attributes, df =  _read_excel(uploaded_file)
+
         progress_bar.progress(100)
-        st.success("File Uploaded Successfully!")
-    
-    source_column = st.sidebar.text_input("Enter Source Column Name", "source")
-    destination_column = st.sidebar.text_input("Enter Destination Column Name", "target")
+        st.sidebar.success("File Uploaded Successfully!")
 
-    if uploaded_file is not None:
-
-        graph = create_graph(df, source_column, destination_column)
+        graph = create_graph(df)
         network_statistics = calculate_network_statistics(graph)
 
         # Network Visualization and Metrics
@@ -154,7 +190,8 @@ if __name__ == "__main__":
 
         st.header("Network Visualization")
         st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
-        viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics)
+        annotate = st.checkbox("Annotate Nodes with Visual Metric Value")
+        viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate)
         st.components.v1.html(open(viz_path, 'r', encoding='utf-8').read(), height=600)
 
         # Community Visualization
@@ -175,19 +212,23 @@ if __name__ == "__main__":
         if selected_metrics: 
             st.header("Network Analysis Metrics")
         for metric in selected_metrics:
-            st.write(f"**{metric}:** {network_statistics.get(metric):.2f}")
+            value = network_statistics.get(metric)
+            if isinstance(value, (int, float)):
+                st.write(f"**{metric}:** {value:.2f}")
+            else:
+                st.write(f"**{metric}:** {value}")
         
         # Statistical Modeling
         st.sidebar.title("Select Statistical Model")
         selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
         if selected_model == "ERGM":
             st.header("ERGM Analysis")
-            ergm_results = perform_ergm_analysis(df, source_column, destination_column)
+            ergm_results = perform_ergm_analysis(df)
             st.write("ERGM Results:")
             st.write(ergm_results)
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
-            alaam_results = perform_alaam_analysis(df, source_column, destination_column)
+            alaam_results = perform_alaam_analysis(df)
             st.write("ALAAM Results:")
             st.write(alaam_results)
 
@@ -197,4 +238,4 @@ if __name__ == "__main__":
         if report_button:
             st.write("Work in Progress...")
     else:
-        st.warning("Please Upload a CSV File")
+        st.warning("Please Upload a File")
