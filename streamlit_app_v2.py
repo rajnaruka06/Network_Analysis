@@ -168,16 +168,11 @@ if __name__ == "__main__":
     uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=["csv", "xlsx"])
 
     if uploaded_file is not None:
-
-        progress_bar = st.sidebar.progress(0)
-
         with st.spinner("Uploading file..."):
             if uploaded_file.name.endswith(".csv"):
                 network_df = _read_csv(uploaded_file)
             else:
                 attribute_df, network_df =  _read_excel(uploaded_file)
-
-        progress_bar.progress(100)
         st.sidebar.success("File Uploaded Successfully!")
 
         graph = create_graph(network_df)
