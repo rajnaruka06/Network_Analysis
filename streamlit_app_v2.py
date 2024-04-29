@@ -146,7 +146,7 @@ def _read_excel(uploaded_file):
     attrbutes = attributes.astype(str)
     attrbutes.colunms = ['NodeID'] + attributes.columns[1:]
 
-    edge_sheet = st.sidebar.selectbox("Select Network Sheet", sheet_names[1:])
+    edge_sheet = st.sidebar.selectbox("Select Network", sheet_names[1:])
     edges = pd.read_excel(uploaded_file, sheet_name=edge_sheet)
     edges = edges.astype(str)
     edges.columns = ['source', 'target']
@@ -171,6 +171,7 @@ if __name__ == "__main__":
         with st.spinner("Uploading file..."):
             if uploaded_file.name.endswith(".csv"):
                 network_df = _read_csv(uploaded_file)
+                attribute_df = None
             else:
                 attribute_df, network_df =  _read_excel(uploaded_file)
         st.sidebar.success("File Uploaded Successfully!")
