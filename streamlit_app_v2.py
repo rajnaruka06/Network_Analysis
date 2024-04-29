@@ -171,7 +171,7 @@ if __name__ == "__main__":
         with st.spinner("Uploading file..."):
             if uploaded_file.name.endswith(".csv"):
                 network_df = _read_csv(uploaded_file)
-                attribute_df = None
+                attribute_df = pd.DataFrame(columns=['NodeID'])
             else:
                 attribute_df, network_df =  _read_excel(uploaded_file)
         st.sidebar.success("File Uploaded Successfully!")
