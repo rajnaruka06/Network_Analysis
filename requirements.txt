@@ -96,3 +96,7 @@ watchdog==4.0.0
 wcwidth==0.2.13
 xxhash==3.4.1
 yarl==1.9.4
+cffi==1.16.0
+pycparser==2.22
+rpy2==3.5.16
+tzlocal==5.2

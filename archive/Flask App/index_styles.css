@@ -1,0 +1,149 @@
+/* Your CSS code here */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #8b9adf 0%, #e4a6ad 13%, #ffffff 50%, #ffffff 100%); /* Gradient background */
+}
+
+/* Additional CSS for the container to create background shapes */
+.container {
+    position: relative;
+    display: flex;
+    align-items: center; /* Center align items vertically */
+    overflow: hidden; /* Hide overflow to prevent shapes from overflowing */
+}
+
+/* Additional CSS for the top-right circle */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 80%;
+    right: 220px; /* Adjust the position of the circle */
+    transform: translateY(-50%); /* Center the circle vertically */
+    width: 500px; /* Adjust the size of the circle */
+    height: 500px; /* Adjust the size of the circle */
+    background-color: rgba(206, 199, 241, 0.947); /* Background color of the circle */
+    border-radius: 50%; /* Make the circle circular */
+    z-index: -1; /* Ensure the circle appears behind other content */
+}
+
+/* Additional CSS for the bottom-right circle */
+.container::after {
+    content: '';
+    position: absolute;
+	top: -10%;
+    bottom: 20px; /* Adjust the position of the circle */
+    right: -60px; /* Adjust the position of the circle */
+    width: 500px; /* Adjust the size of the circle */
+    height: 500px; /* Adjust the size of the circle */
+    background-color: rgb(221, 135, 135); /* Background color of the circle */
+    border-radius: 50%; /* Make the circle circular */
+    z-index: -1; /* Ensure the circle appears behind other content */
+}
+
+/* Additional CSS for the bottom circle */
+.container-bottom::before {
+    content: '';
+    position: absolute;
+    bottom: -200px; /* Adjust the position of the circle */
+    right: 50%; /* Adjust the horizontal position to center */
+    transform: translateX(50%); /* Move the circle to center horizontally */
+    width: 500px; /* Adjust the size of the circle */
+    height: 500px; /* Adjust the size of the circle */
+    background-color: rgba(183, 188, 243, 0.947); /* Background color of the circle */
+    border-radius: 50%; /* Make the circle circular */
+    z-index: -1; /* Ensure the circle appears behind other content */
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Take remaining space */
+    margin-left: 20px; /* Add left margin to move the content to the right */
+    margin-top: 40px; /* Add top margin to move the content down */
+}
+
+.content-with-image {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px; /* Add space between the image and the content */
+}
+
+.image-left-bottom img {
+    width: 200px; /* Adjust the width of the image as needed */
+    height: auto;
+    margin-right: 20px; /* Adjust spacing between image and text */
+}
+
+.content-beside-image {
+    flex: 1; /* Take remaining space */
+    margin-top: 60px; /* Add top margin to move the content down */
+}
+
+h1 {
+    font-size: 3.7rem;
+    /* Use CSS gradient for shading effect */
+    background: linear-gradient(to right, #800000, #ef0303, #e03a3a, #ea610b, #ff909f, #54c1e5, #2197bf, #0b70d4, #0a0a9b, #051956);
+    -webkit-background-clip: text; /* Clip the text to the background area */
+    -webkit-text-fill-color: transparent; /* Make the text transparent */
+}
+
+/* Additional CSS for the paragraph */
+p {
+    font-size: 1.9rem; /* Slightly larger font size */
+    color: #0d127d; /* Vibrant blue paragraph text color */
+    font-weight: bold; /* Make the text bold */
+    /* Apply darker shadow effect */
+    text-shadow: 2px 2px 4px rgba(252, 251, 251, 0.945); /* Adjust the opacity (last value) to make it darker */
+}
+
+/* Additional CSS for the upload label */
+.upload-container {
+    margin-top: 100px; /* Add more spacing between the heading and label */
+    margin-left: 230px; /* Move the label further to the right */
+}
+
+.upload-label {
+    color: #131a9f; /* Blue file upload label color */
+    font-weight: bold; /* Make the label bold */
+    font-size: 1.6rem; /* Increase font size */
+}
+
+.upload-input {
+    display: none;
+}
+
+/* Additional CSS for the button */
+.btn {
+    margin-top: 20px; /* Add spacing between the label and button */
+	margin-left: 280px; /* Move the label further to the right */
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #0d46b7; /* Vibrant blue button background color */
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #a7120f; /* Darker shade of blue on hover */
+}
+
+/* Additional CSS for the right bottom image */
+.image-right-bottom {
+	margin-right: 0; /* Move the label further to the right */
+    position: absolute; /* Position the image absolutely */
+    bottom: 20px; /* Adjust bottom spacing */
+    right: -49px; /* Adjust right spacing */
+    z-index: 999; /* Ensure the image stays on top of other content */
+    width: 800px; /* Adjust the width of the image */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.image-right-bottom img {
+    width: 750px; /* Adjust the width of the image */
+    height: auto; /* Maintain aspect ratio */
+}

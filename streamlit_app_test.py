@@ -7,6 +7,11 @@ import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
 
+import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.conversion import localconverter
+
+
 def create_graph(network_df):
     graph = nx.Graph()
     for i in range(len(network_df)):
@@ -122,10 +127,76 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(network_df, attribute_df, selected_attribute):
-    return "Work in Progress"
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
+    output_file_path="ergm_analysis_results.txt"
 
-def perform_alaam_analysis(network_df, attribute_df, selected_attribute):
+    if edges_only:
+
+        pandas2ri.activate()
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            r_net_data = ro.conversion.py2rpy(network_df)
+
+        ro.globalenv['df'] = r_net_data
+
+        try:
+            ro.r(f'''
+            library(network)
+            library(ergm)
+            df$Source <- as.character(df$source)
+            df$Target <- as.character(df$target)
+            net <- network::network(df, directed = TRUE, loops = FALSE)
+
+            # ERGM formula for edges only
+            formula <- "net ~ edges"
+            ergm_model <- ergm::ergm(as.formula(formula))
+            summary_ergm <- summary(ergm_model)
+            writeLines(capture.output(summary_ergm), "{output_file_path}")
+            ''')
+            print(f"ERGM analysis completed. Results saved to {output_file_path}")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        attribute_df = attribute_df[['NodeID', selected_attribute]]
+        attribute_df.dropna(subset=[selected_attribute], inplace=True)
+
+        net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
+        # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
+        # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
+        # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
+        net_data.drop(columns=['NodeID'], inplace=True)
+        
+        pandas2ri.activate()
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            r_net_data = ro.conversion.py2rpy(net_data)
+
+        ro.globalenv['df'] = r_net_data
+        ro.globalenv['selected_attribute'] = selected_attribute
+
+        try:
+            ro.r(f'''
+            library(network)
+            library(ergm)
+                 
+            # net <- network::network(df, directed = TRUE, loops = FALSE)
+            # formula <- paste("net ~ edges + nodematch('", selected_attribute, "', diff = FALSE)", sep="")
+                 
+            net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
+
+            formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
+
+            
+            ergm_model <- ergm::ergm(as.formula(formula))
+            summary_ergm <- summary(ergm_model)
+                 
+            writeLines(capture.output(summary_ergm), "{output_file_path}")
+            ''')
+            print(f"ERGM analysis completed. Results saved to {output_file_path}")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
     return "Work in Progress"
 
 def _read_csv(upload_file):
@@ -138,7 +209,6 @@ def _read_csv(upload_file):
     df.drop_duplicates(inplace=True)
     df = df[~(df['source'] == df['target'])]
     df.reset_index(drop=True, inplace=True)
-
     return df
 
 def _read_excel(uploaded_file):
@@ -225,12 +295,14 @@ if __name__ == "__main__":
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
         if selected_model == "ERGM":
             st.header("ERGM Analysis")
-            ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute)
+            edges_only=uploaded_file.name.endswith(".csv")
+            ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
             st.write("ERGM Results:")
             st.write(ergm_results)
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
-            alaam_results = perform_alaam_analysis(network_df, attribute_df, selected_attribute)
+            edges_only=uploaded_file.name.endswith(".csv")
+            alaam_results = perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only)
             st.write("ALAAM Results:")
             st.write(alaam_results)
 
