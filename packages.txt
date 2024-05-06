@@ -1,4 +1,4 @@
 r-base
 r-base-dev
-r-network
-r-ergm
+r-cran-network
+ergm
