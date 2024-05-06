@@ -1,0 +1,7 @@
+# R Base Packages
+r-base
+r-base-dev
+
+# System-level R Package Installation
+r-cran-network
+r-cran-ergm
