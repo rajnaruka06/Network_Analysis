@@ -129,6 +129,7 @@ def create_community_visualization(graph, network_statistics):
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
     output_file_path="ergm_analysis_results.txt"
 
+    print("ERGM function 1")
     if edges_only:
 
         pandas2ri.activate()
