@@ -296,12 +296,14 @@ if __name__ == "__main__":
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
         if selected_model == "ERGM":
             st.header("ERGM Analysis")
-            ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute)
+            edges_only=uploaded_file.name.endswith(".csv")
+            ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
             st.write("ERGM Results:")
             st.write(ergm_results)
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
-            alaam_results = perform_alaam_analysis(network_df, attribute_df, selected_attribute)
+            edges_only=uploaded_file.name.endswith(".csv")
+            alaam_results = perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only)
             st.write("ALAAM Results:")
             st.write(alaam_results)
 
