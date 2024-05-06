@@ -301,6 +301,9 @@ if __name__ == "__main__":
             st.header("ERGM Analysis")
             edges_only=uploaded_file.name.endswith(".csv")
             ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
+            print(ergm_results)
+            with open(ergm_results, 'r') as f:
+                st.write(f.read())
             st.write("ERGM Results:")
             st.write(ergm_results)
         elif selected_model == "ALAAM":
