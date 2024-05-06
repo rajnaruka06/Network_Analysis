@@ -128,8 +128,6 @@ def create_community_visualization(graph, network_statistics):
 
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
     output_file_path="ergm_analysis_results.txt"
-
-    print("ERGM function 1")
     if edges_only:
 
         pandas2ri.activate()
@@ -137,11 +135,10 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             r_net_data = ro.conversion.py2rpy(network_df)
 
         ro.globalenv['df'] = r_net_data
-        print("Inside ERGM Functino")
 
         try:
             ro.r(f'''
-            install.packages("ergm", lib="~/R/library")
+            install.packages("ergm", lib="./temp_lib")
             library(network)
             library(ergm)
             df$Source <- as.character(df$source)
