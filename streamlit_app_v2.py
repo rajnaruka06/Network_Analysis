@@ -139,7 +139,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
         try:
             ro.r(f'''
-            install.packages("ergm", lib=NULL)
+            install.packages("ergm", lib="~/R/library")
             library(network)
             library(ergm)
             df$Source <- as.character(df$source)
