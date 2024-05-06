@@ -136,6 +136,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             r_net_data = ro.conversion.py2rpy(network_df)
 
         ro.globalenv['df'] = r_net_data
+        print("Inside ERGM Functino")
 
         try:
             ro.r(f'''
