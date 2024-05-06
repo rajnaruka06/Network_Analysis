@@ -139,7 +139,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
         try:
             ro.r(f'''
-            install.packages("ergm")
+            install.packages("ergm", lib=NULL)
             library(network)
             library(ergm)
             df$Source <- as.character(df$source)
@@ -175,6 +175,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
         try:
             ro.r(f'''
+                 install.packages("ergm", lib=NULL)
             library(network)
             library(ergm)
                  
@@ -195,6 +196,8 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
         except Exception as e:
             print(f"An error occurred: {e}")
+    
+    return output_file_path
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute):
     return "Work in Progress"
