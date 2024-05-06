@@ -138,14 +138,19 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
         try:
             ro.r(f'''
+                 print("Installing ergm package")
             install.packages("ergm", lib="./temp_lib")
+                 print("Loading libraries")
             library(network)
             library(ergm)
+                 print("Creating network object")
             df$Source <- as.character(df$source)
             df$Target <- as.character(df$target)
+                 print("Creating network object")
             net <- network::network(df, directed = TRUE, loops = FALSE)
 
             # ERGM formula for edges only
+                 print("Creating ERGM model")
             formula <- "net ~ edges"
             ergm_model <- ergm::ergm(as.formula(formula))
             summary_ergm <- summary(ergm_model)
