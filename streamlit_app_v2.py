@@ -159,7 +159,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
             except Exception as e:
                 st.write(e.args)
-                if e.args[0] == "Error in library(ergm) : there is no package called 'ergm'": 
+                if e.args[0] == "Error in library(ergm) : there is no package called 'ergm'\n": 
                     pass
                 else:
                     st.error(f"An error occurred: {e}")
