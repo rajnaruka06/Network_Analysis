@@ -184,13 +184,12 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                     install.packages("ergm", lib="{r_lib_path}")
                 library(network)
                 library(ergm)
-                    
-                # net <- network::network(df, directed = TRUE, loops = FALSE)
-                # formula <- paste("net ~ edges + nodematch('", selected_attribute, "', diff = FALSE)", sep="")
-                    
-                net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
 
-                formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
+                # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
+                # formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
+
+                net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
+                formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "', diff = FALSE)", sep="")
 
                 
                 ergm_model <- ergm::ergm(as.formula(formula))
