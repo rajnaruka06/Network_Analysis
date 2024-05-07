@@ -11,6 +11,8 @@ import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 
+import tempfile
+
 def create_graph(network_df):
     graph = nx.Graph()
     for i in range(len(network_df)):
@@ -128,79 +130,82 @@ def create_community_visualization(graph, network_statistics):
 
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
     output_file_path="ergm_analysis_results.txt"
-    if edges_only:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        r_lib_path = temp_dir
 
-        pandas2ri.activate()
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            r_net_data = ro.conversion.py2rpy(network_df)
+        if edges_only:
 
-        ro.globalenv['df'] = r_net_data
+            pandas2ri.activate()
+            with localconverter(ro.default_converter + pandas2ri.converter):
+                r_net_data = ro.conversion.py2rpy(network_df)
 
-        try:
-            ro.r(f'''
-                 print("Installing ergm package")
-            install.packages("ergm", lib="./temp_lib")
-                 print("Loading libraries")
-            library(network)
-            library(ergm)
-                 print("Creating network object")
-            df$Source <- as.character(df$source)
-            df$Target <- as.character(df$target)
-                 print("Creating network object")
-            net <- network::network(df, directed = TRUE, loops = FALSE)
+            ro.globalenv['df'] = r_net_data
 
-            # ERGM formula for edges only
-                 print("Creating ERGM model")
-            formula <- "net ~ edges"
-            ergm_model <- ergm::ergm(as.formula(formula))
-            summary_ergm <- summary(ergm_model)
-            writeLines(capture.output(summary_ergm), "{output_file_path}")
-            ''')
-            print(f"ERGM analysis completed. Results saved to {output_file_path}")
+            try:
+                ro.r(f'''
+                    print("Installing ergm package")
+                install.packages("ergm", lib="{r_lib_path}")
+                    print("Loading libraries")
+                library(network)
+                library(ergm)
+                    print("Creating network object")
+                df$Source <- as.character(df$source)
+                df$Target <- as.character(df$target)
+                    print("Creating network object")
+                net <- network::network(df, directed = TRUE, loops = FALSE)
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
-    else:
-        attribute_df = attribute_df[['NodeID', selected_attribute]]
-        attribute_df.dropna(subset=[selected_attribute], inplace=True)
+                # ERGM formula for edges only
+                    print("Creating ERGM model")
+                formula <- "net ~ edges"
+                ergm_model <- ergm::ergm(as.formula(formula))
+                summary_ergm <- summary(ergm_model)
+                writeLines(capture.output(summary_ergm), "{output_file_path}")
+                ''')
+                print(f"ERGM analysis completed. Results saved to {output_file_path}")
 
-        net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
-        # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
-        # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
-        # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
-        net_data.drop(columns=['NodeID'], inplace=True)
-        
-        pandas2ri.activate()
-        with localconverter(ro.default_converter + pandas2ri.converter):
-            r_net_data = ro.conversion.py2rpy(net_data)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+        else:
+            attribute_df = attribute_df[['NodeID', selected_attribute]]
+            attribute_df.dropna(subset=[selected_attribute], inplace=True)
 
-        ro.globalenv['df'] = r_net_data
-        ro.globalenv['selected_attribute'] = selected_attribute
-
-        try:
-            ro.r(f'''
-                 install.packages("ergm", lib=NULL)
-            library(network)
-            library(ergm)
-                 
-            # net <- network::network(df, directed = TRUE, loops = FALSE)
-            # formula <- paste("net ~ edges + nodematch('", selected_attribute, "', diff = FALSE)", sep="")
-                 
-            net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
-
-            formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
-
+            net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
+            # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
+            # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
+            # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
+            net_data.drop(columns=['NodeID'], inplace=True)
             
-            ergm_model <- ergm::ergm(as.formula(formula))
-            summary_ergm <- summary(ergm_model)
-                 
-            writeLines(capture.output(summary_ergm), "{output_file_path}")
-            ''')
-            print(f"ERGM analysis completed. Results saved to {output_file_path}")
+            pandas2ri.activate()
+            with localconverter(ro.default_converter + pandas2ri.converter):
+                r_net_data = ro.conversion.py2rpy(net_data)
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
-    
+            ro.globalenv['df'] = r_net_data
+            ro.globalenv['selected_attribute'] = selected_attribute
+
+            try:
+                ro.r(f'''
+                    install.packages("ergm", lib="{r_lib_path}")
+                library(network)
+                library(ergm)
+                    
+                # net <- network::network(df, directed = TRUE, loops = FALSE)
+                # formula <- paste("net ~ edges + nodematch('", selected_attribute, "', diff = FALSE)", sep="")
+                    
+                net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
+
+                formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
+
+                
+                ergm_model <- ergm::ergm(as.formula(formula))
+                summary_ergm <- summary(ergm_model)
+                    
+                writeLines(capture.output(summary_ergm), "{output_file_path}")
+                ''')
+                print(f"ERGM analysis completed. Results saved to {output_file_path}")
+
+            except Exception as e:
+                print(f"An error occurred: {e}")
+        
     return output_file_path
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute):
