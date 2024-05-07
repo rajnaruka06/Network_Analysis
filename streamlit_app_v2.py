@@ -134,6 +134,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         r_lib_path = temp_dir
 
         if edges_only:
+            st.write("Performing ERGM analysis on edges only")
 
             pandas2ri.activate()
             with localconverter(ro.default_converter + pandas2ri.converter):
@@ -163,6 +164,8 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 if summary_text is None: 
                     st.error(f"An error occurred: {e}")
         else:
+            st.write("Performing ERGM analysis on edges and node attributes")
+            
             attribute_df = attribute_df[['NodeID', selected_attribute]]
             attribute_df.dropna(subset=[selected_attribute], inplace=True)
 
@@ -307,7 +310,6 @@ if __name__ == "__main__":
         if selected_model == "ERGM":
             st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
-            st.write("Edges Only:", edges_only)
             ergm_file_path = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
             try:
                 with open(ergm_file_path, 'r') as f:
