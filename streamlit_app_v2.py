@@ -310,16 +310,9 @@ if __name__ == "__main__":
             st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
             ergm_file_path = "ergm_analysis_results.txt"
-            with open(ergm_file_path, 'w') as f:
-                f.write("")
             with st.spinner("Performing ERGM Analysis..."):
                 ergm_success = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
-            try:
-                with open(ergm_file_path, 'r') as f:
-                    summary_text = f.read()
-            except FileNotFoundError:
-                summary_text = "Error: ERGM summary file not found."
-            
+                        
             ## Manual labour to display ERGM summary
             if ergm_success:
                 with open(ergm_file_path, 'r') as f:
