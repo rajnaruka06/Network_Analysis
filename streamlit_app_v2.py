@@ -307,6 +307,7 @@ if __name__ == "__main__":
         if selected_model == "ERGM":
             st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
+            st.write("Edges Only:", edges_only)
             ergm_file_path = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
             try:
                 with open(ergm_file_path, 'r') as f:
