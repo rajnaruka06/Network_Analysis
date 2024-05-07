@@ -143,28 +143,22 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
             try:
                 ro.r(f'''
-                    print("Installing ergm package")
                 install.packages("ergm", lib="{r_lib_path}")
-                    print("Loading libraries")
                 library(network)
                 library(ergm)
-                    print("Creating network object")
                 df$Source <- as.character(df$source)
                 df$Target <- as.character(df$target)
-                    print("Creating network object")
                 net <- network::network(df, directed = TRUE, loops = FALSE)
 
                 # ERGM formula for edges only
-                    print("Creating ERGM model")
                 formula <- "net ~ edges"
                 ergm_model <- ergm::ergm(as.formula(formula))
                 summary_ergm <- summary(ergm_model)
                 writeLines(capture.output(summary_ergm), "{output_file_path}")
                 ''')
-                print(f"ERGM analysis completed. Results saved to {output_file_path}")
 
             except Exception as e:
-                print(f"An error occurred: {e}")
+                st.error(f"An error occurred: {e}")
         else:
             attribute_df = attribute_df[['NodeID', selected_attribute]]
             attribute_df.dropna(subset=[selected_attribute], inplace=True)
@@ -201,10 +195,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                     
                 writeLines(capture.output(summary_ergm), "{output_file_path}")
                 ''')
-                print(f"ERGM analysis completed. Results saved to {output_file_path}")
 
             except Exception as e:
-                print(f"An error occurred: {e}")
+                st.error(f"An error occurred: {e}")
         
     return output_file_path
 
@@ -307,20 +300,59 @@ if __name__ == "__main__":
         selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
         if selected_model == "ERGM":
-            st.header("ERGM Analysis")
+            st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
-            ergm_results = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
-            print(ergm_results)
-            with open(ergm_results, 'r') as f:
-                st.write(f.read())
-            st.write("ERGM Results:")
-            st.write(ergm_results)
+            ergm_file_path = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
+            try:
+                with open(ergm_file_path, 'r') as f:
+                    summary_text = f.read()
+            except FileNotFoundError:
+                summary_text = "Error: ERGM summary file not found."
+            
+            ## Manual labour to display ERGM summary
+            with open(ergm_file_path, 'r') as f:
+                summary_text = f.read().strip()
+
+            call_section, results_section = summary_text.split("\n\nMaximum Likelihood Results:")
+            results_lines = results_section.splitlines()
+            headers = ['Estimate', 'Std. Error', 'MCMC %', 'z value', 'Pr(>|z|)']
+            data = []
+            for line in results_lines[3:-7]:
+                row = []
+                for val in line.split()[1:-1]:
+                    try:
+                        row.append(float(val))
+                    except ValueError:
+                        row.append(float(val[1:]))
+                    else:
+                        continue
+                data.append(row)
+                        
+            summary_df = pd.DataFrame(data, columns=headers, index=['edges', 'nodematch'])
+
+            null_deviance_line = results_lines[-4].split(": ")[1].split()
+            null_deviance_value, null_deviance_df  = null_deviance_line[0], null_deviance_line[2]
+
+            residual_deviance_line = results_lines[-3].split(": ")[1].split()
+            residual_deviance_value, residual_deviance_df = residual_deviance_line[0], residual_deviance_line[2]
+
+            aic_bic_line = results_lines[-1].split(": ")
+            aic_value = aic_bic_line[1].split()[0]
+            bic_value = aic_bic_line[2].split()[0]
+            
+            st.table(summary_df)
+            
+            st.write("Null Deviance:", null_deviance_value, f"on {null_deviance_df} degrees of freedom")
+            st.write("Residual Deviance:", residual_deviance_value, f"on {residual_deviance_df} degrees of freedom")
+            st.write("AIC:", aic_value)
+            st.write("BIC:", bic_value)
+            
+            
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
             edges_only=uploaded_file.name.endswith(".csv")
-            alaam_results = perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only)
-            st.write("ALAAM Results:")
-            st.write(alaam_results)
+            alaam_file_path = perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only)
+            
 
         # # Download report
         st.sidebar.title("Download Report")
