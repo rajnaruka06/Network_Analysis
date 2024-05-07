@@ -132,6 +132,8 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
     output_file_path="ergm_analysis_results.txt"
     with tempfile.TemporaryDirectory() as temp_dir:
         r_lib_path = temp_dir
+        with open(output_file_path, 'w') as f:
+            f.write("")
 
         if edges_only:
 
