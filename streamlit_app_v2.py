@@ -158,6 +158,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 ''')
 
             except Exception as e:
+                st.write(e.args)
                 if e.args[0] == "Error in library(ergm) : there is no package called 'ergm'": 
                     pass
                 else:
@@ -207,7 +208,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
     return output_file_path
 
-def perform_alaam_analysis(network_df, attribute_df, selected_attribute):
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
     return "Work in Progress"
 
 def _read_csv(upload_file):
