@@ -158,7 +158,10 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 ''')
 
             except Exception as e:
-                st.error(f"An error occurred: {e}")
+                if e.args[0] == "Error in library(ergm) : there is no package called 'ergm'": 
+                    pass
+                else:
+                    st.error(f"An error occurred: {e}")
         else:
             attribute_df = attribute_df[['NodeID', selected_attribute]]
             attribute_df.dropna(subset=[selected_attribute], inplace=True)
@@ -197,7 +200,10 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 ''')
 
             except Exception as e:
-                st.error(f"An error occurred: {e}")
+                if e.args[0] == "Error in library(ergm) : there is no package called 'ergm'": 
+                    pass
+                else:
+                    st.error(f"An error occurred: {e}")
         
     return output_file_path
 
