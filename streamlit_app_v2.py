@@ -128,13 +128,11 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
-    output_file_path="ergm_analysis_results.txt"
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
     with tempfile.TemporaryDirectory() as temp_dir:
         r_lib_path = temp_dir
 
         if edges_only:
-            st.write("Performing ERGM analysis on edges only")
 
             pandas2ri.activate()
             with localconverter(ro.default_converter + pandas2ri.converter):
@@ -163,8 +161,8 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                     summary_text = f.read().strip()
                 if summary_text is None: 
                     st.error(f"An error occurred: {e}")
+                    return False
         else:
-            st.write("Performing ERGM analysis on edges and node attributes")
             
             attribute_df = attribute_df[['NodeID', selected_attribute]]
             attribute_df.dropna(subset=[selected_attribute], inplace=True)
@@ -206,8 +204,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                     summary_text = f.read().strip()
                 if summary_text is None: 
                     st.error(f"An error occurred: {e}")
+                    return False
         
-    return output_file_path
+    return True
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
     return "Work in Progress"
@@ -310,7 +309,11 @@ if __name__ == "__main__":
         if selected_model == "ERGM":
             st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
-            ergm_file_path = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only)
+            ergm_file_path = "ergm_analysis_results.txt"
+            with open(ergm_file_path, 'w') as f:
+                f.write("")
+            with st.spinner("Performing ERGM Analysis..."):
+                ergm_success = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
             try:
                 with open(ergm_file_path, 'r') as f:
                     summary_text = f.read()
@@ -318,42 +321,43 @@ if __name__ == "__main__":
                 summary_text = "Error: ERGM summary file not found."
             
             ## Manual labour to display ERGM summary
-            with open(ergm_file_path, 'r') as f:
-                summary_text = f.read().strip()
+            if ergm_success:
+                with open(ergm_file_path, 'r') as f:
+                    summary_text = f.read().strip()
 
-            call_section, results_section = summary_text.split("\n\nMaximum Likelihood Results:")
-            results_lines = results_section.splitlines()
-            headers = ['Estimate', 'Std. Error', 'MCMC %', 'z value', 'Pr(>|z|)']
-            data = []
-            for line in results_lines[3:-7]:
-                row = []
-                for val in line.split()[1:-1]:
-                    try:
-                        row.append(float(val))
-                    except ValueError:
-                        row.append(float(val[1:]))
-                    else:
-                        continue
-                data.append(row)
-                        
-            summary_df = pd.DataFrame(data, columns=headers, index=['edges', 'nodematch'])
+                call_section, results_section = summary_text.split("\n\nMaximum Likelihood Results:")
+                results_lines = results_section.splitlines()
+                headers = ['Estimate', 'Std. Error', 'MCMC %', 'z value', 'Pr(>|z|)']
+                data = []
+                for line in results_lines[3:-7]:
+                    row = []
+                    for val in line.split()[1:-1]:
+                        try:
+                            row.append(float(val))
+                        except ValueError:
+                            row.append(float(val[1:]))
+                        else:
+                            continue
+                    data.append(row)
+                            
+                summary_df = pd.DataFrame(data, columns=headers, index=['edges', 'nodematch'])
 
-            null_deviance_line = results_lines[-4].split(": ")[1].split()
-            null_deviance_value, null_deviance_df  = null_deviance_line[0], null_deviance_line[2]
+                null_deviance_line = results_lines[-4].split(": ")[1].split()
+                null_deviance_value, null_deviance_df  = null_deviance_line[0], null_deviance_line[2]
 
-            residual_deviance_line = results_lines[-3].split(": ")[1].split()
-            residual_deviance_value, residual_deviance_df = residual_deviance_line[0], residual_deviance_line[2]
+                residual_deviance_line = results_lines[-3].split(": ")[1].split()
+                residual_deviance_value, residual_deviance_df = residual_deviance_line[0], residual_deviance_line[2]
 
-            aic_bic_line = results_lines[-1].split(": ")
-            aic_value = aic_bic_line[1].split()[0]
-            bic_value = aic_bic_line[2].split()[0]
-            
-            st.table(summary_df)
-            
-            st.write("Null Deviance:", null_deviance_value, f"on {null_deviance_df} degrees of freedom")
-            st.write("Residual Deviance:", residual_deviance_value, f"on {residual_deviance_df} degrees of freedom")
-            st.write("AIC:", aic_value)
-            st.write("BIC:", bic_value)
+                aic_bic_line = results_lines[-1].split(": ")
+                aic_value = aic_bic_line[1].split()[0]
+                bic_value = aic_bic_line[2].split()[0]
+                
+                st.table(summary_df)
+                
+                st.write("Null Deviance:", null_deviance_value, f"on {null_deviance_df} degrees of freedom")
+                st.write("Residual Deviance:", residual_deviance_value, f"on {residual_deviance_df} degrees of freedom")
+                st.write("AIC:", aic_value)
+                st.write("BIC:", bic_value)
             
             
         elif selected_model == "ALAAM":
