@@ -208,7 +208,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
     return True
 
-def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False):
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
     return "Work in Progress"
 
 def _read_csv(upload_file):
