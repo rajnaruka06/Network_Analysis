@@ -143,7 +143,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.r(f'''
                 install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm, lib.loc="{r_lib_path})
+                library(ergm, lib.loc="{r_lib_path}")
                 df$Source <- as.character(df$source)
                 df$Target <- as.character(df$target)
                 net <- network::network(df, directed = TRUE, loops = FALSE)
