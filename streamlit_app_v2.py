@@ -147,7 +147,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.r(f'''
                 # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm, lib.loc="r_packages")
+                library(ergm, lib.loc="./r_packages")
                 df$Source <- as.character(df$source)
                 df$Target <- as.character(df$target)
                 net <- network::network(df, directed = TRUE, loops = FALSE)
@@ -178,7 +178,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.r(f'''
                     # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm, lib.loc="r_packages")
+                library(ergm, lib.loc="./r_packages")
 
                 # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
                 # formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
