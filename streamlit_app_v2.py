@@ -271,13 +271,9 @@ def _read_excel(uploaded_file):
 
 if __name__ == "__main__":
 
-    # Path to your R script
     r_script_path = 'install_ergm.R'
-
-    # Command to execute the R script
     r_command = ['Rscript', r_script_path]
-
-    # Run the R script using subprocess.run()
+    
     result = subprocess.call(r_command)
     st.write(os.listdir("./r_packages"))
 

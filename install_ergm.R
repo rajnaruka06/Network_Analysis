@@ -7,4 +7,4 @@ if (!dir.exists(r_packages_dir)) {
 }
 
 # Install ergm package to the specified directory
-install.packages("ergm", lib=r_packages_dir)
+install.packages("ergm", lib=r_packages_dir, repos="https://cloud.r-project.org")
