@@ -7,6 +7,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
 import tempfile
+import subprocess
 
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
@@ -143,9 +144,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.globalenv['df'] = r_net_data
             
             ro.r(f'''
-                install.packages("ergm", lib="{r_lib_path}")
+                # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm)
+                library(ergm, lib.loc="r_packages")
                 df$Source <- as.character(df$source)
                 df$Target <- as.character(df$target)
                 net <- network::network(df, directed = TRUE, loops = FALSE)
@@ -174,9 +175,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.globalenv['df'] = r_net_data
             ro.globalenv['selected_attribute'] = selected_attribute
             ro.r(f'''
-                    install.packages("ergm", lib="{r_lib_path}")
+                    # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm)
+                library(ergm, lib.loc="r_packages")
 
                 # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
                 # formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
@@ -268,6 +269,15 @@ def _read_excel(uploaded_file):
 
 
 if __name__ == "__main__":
+
+    # Path to your R script
+    r_script_path = 'install_ergm.R'
+
+    # Command to execute the R script
+    r_command = ['Rscript', r_script_path]
+
+    # Run the R script using subprocess.run()
+    subprocess.run(r_command)
 
     st.title("Network Analysis App")
     st.sidebar.title("Options")
