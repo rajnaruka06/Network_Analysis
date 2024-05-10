@@ -11,7 +11,6 @@ import tempfile
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
-import rpy2.robjects.packages as rpackages
 
 
 
@@ -134,12 +133,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
     with tempfile.TemporaryDirectory() as temp_dir:
         
         r_lib_path = temp_dir
-        utils = rpackages.importr('utils')
-        # result = utils.install_packages('ergm', lib=r_lib_path)
-        result = utils.install_packages("ergm", repos = "ergm_4.6.0.tar.gz")
-
-        if not result:
-            st.write("ERGM package not installed successfully") 
 
         if edges_only:
 
@@ -150,7 +143,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.globalenv['df'] = r_net_data
             
             ro.r(f'''
-                # install.packages("ergm", lib="{r_lib_path}")
+                install.packages("ergm", lib="{r_lib_path}")
                 library(network)
                 library(ergm)
                 df$Source <- as.character(df$source)
@@ -181,7 +174,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.globalenv['df'] = r_net_data
             ro.globalenv['selected_attribute'] = selected_attribute
             ro.r(f'''
-                    # install.packages("ergm", lib="{r_lib_path}")
+                    install.packages("ergm", lib="{r_lib_path}")
                 library(network)
                 library(ergm)
 
