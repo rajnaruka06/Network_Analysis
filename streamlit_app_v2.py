@@ -7,13 +7,15 @@ import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
 import  os
+import time
+import tempfile
 
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 import rpy2.robjects.packages as rpackages
 
-import tempfile
+
 
 def create_graph(network_df):
     graph = nx.Graph()
@@ -136,6 +138,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         r_lib_path = temp_dir
         utils = rpackages.importr('utils')
         utils.install_packages('ergm', lib=r_lib_path)
+        time.sleep(30)
         st.write(os.listdir(temp_dir))
 
         if edges_only:
