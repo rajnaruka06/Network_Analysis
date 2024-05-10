@@ -277,7 +277,8 @@ if __name__ == "__main__":
     r_command = ['Rscript', r_script_path]
 
     # Run the R script using subprocess.run()
-    subprocess.run(r_command)
+    result = subprocess.call(r_command)
+    st.write(result)
 
     st.title("Network Analysis App")
     st.sidebar.title("Options")
