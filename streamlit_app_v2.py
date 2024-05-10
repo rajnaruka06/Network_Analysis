@@ -139,9 +139,8 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 r_net_data = ro.conversion.py2rpy(network_df)
 
             ro.globalenv['df'] = r_net_data
-
-            try:
-                ro.r(f'''
+            
+            ro.r(f'''
                 install.packages("ergm", lib="{r_lib_path}")
                 library(network)
                 library(ergm)
@@ -155,13 +154,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 summary_ergm <- summary(ergm_model)
                 writeLines(capture.output(summary_ergm), "{output_file_path}")
                 ''')
-
-            except Exception as e:
-                with open(output_file_path, 'r') as f:
-                    summary_text = f.read().strip()
-                if summary_text is None: 
-                    st.error(f"An error occurred: {e}")
-                    return False
         else:
             
             attribute_df = attribute_df[['NodeID', selected_attribute]]
@@ -179,9 +171,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
             ro.globalenv['df'] = r_net_data
             ro.globalenv['selected_attribute'] = selected_attribute
-
-            try:
-                ro.r(f'''
+            ro.r(f'''
                     install.packages("ergm", lib="{r_lib_path}")
                 library(network)
                 library(ergm)
@@ -199,14 +189,10 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 writeLines(capture.output(summary_ergm), "{output_file_path}")
                 ''')
 
-            except Exception as e:
-                with open(output_file_path, 'r') as f:
-                    summary_text = f.read().strip()
-                if summary_text is None: 
-                    st.error(f"An error occurred: {e}")
-                    return False
-        
-    return True
+            
+        with open(output_file_path, 'r') as f:
+            summary_text = f.read().strip()
+        return summary_text
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
     
@@ -222,9 +208,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_
         ro.globalenv['net_df'] = r_net_data
         ro.globalenv['attr_df'] = r_attr_data
         ro.globalenv['selected_attribute'] = selected_attribute
-
-        try:
-            ro.r(f'''
+        ro.r(f'''
             install.packages("xergm", lib="{r_lib_path}")
             library(network)
             library(xergm)
@@ -242,15 +226,9 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_
             summary_alaam <- summary(alaam_model)
             writeLines(capture.output(summary_alaam), "{output_file_path}")
             ''')
-
-        except Exception as e:
-            with open(output_file_path, 'r') as f:
-                summary_text = f.read().strip()
-            if summary_text is None: 
-                print(f"An error occurred: {e}")
-                return False
-        
-    return True
+        with open(output_file_path, 'r') as f:
+            summary_text = f.read().strip()
+        return summary_text 
 
 def _read_csv(upload_file):
     df = pd.read_csv(upload_file)
@@ -352,12 +330,10 @@ if __name__ == "__main__":
             edges_only=uploaded_file.name.endswith(".csv")
             ergm_file_path = "ergm_analysis_results.txt"
             with st.spinner("Performing ERGM Analysis..."):
-                ergm_success = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
+                summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
                         
             ## Manual labour to display ERGM summary
-            if ergm_success:
-                with open(ergm_file_path, 'r') as f:
-                    summary_text = f.read().strip()
+            if summary_text is not None:
 
                 call_section, results_section = summary_text.split("\n\nMaximum Likelihood Results:")
                 results_lines = results_section.splitlines()
@@ -401,10 +377,8 @@ if __name__ == "__main__":
                 st.warning("ALAAM Analysis is not supported for edges only network")    
             else:
                 alaam_file_path = "alaam_analysis_results.txt"
-                alaam_success = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path)
-                if alaam_success:
-                    with open(alaam_success, 'r') as f:
-                        summary_text = f.read().strip()
+                summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path)
+                if summary_text is not   None:
                     st.write(summary_text)
                 else:
                     st.error("An error occurred during ALAAM analysis")
