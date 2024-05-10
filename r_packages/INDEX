@@ -1,0 +1,357 @@
+.dyads-ergmConstraint   A meta-constraint indicating handling of
+                        arbitrary dyadic constraints
+B-ergmTerm              Wrap binary terms for use in valued models
+Bernoulli-ergmReference
+                        Bernoulli reference
+Curve-ergmTerm          Impose a curved structure on term parameters
+DiscUnif-ergmReference
+                        Discrete Uniform reference
+Dyads-ergmConstraint    Constrain fixed or varying dyad-independent
+                        terms
+Exp-ergmTerm            Exponentiate a network's statistic
+F-ergmTerm              Filtering on arbitrary one-term model
+For-ergmTerm            A 'for' operator for terms
+Label-ergmTerm          Modify terms' coefficient names
+Log-ergmTerm            Take a natural logarithm of a network's
+                        statistic
+NodematchFilter-ergmTerm
+                        Filtering on nodematch
+Offset-ergmTerm         Terms with fixed coefficients
+Prod-ergmTerm           A product (or an arbitrary power combination)
+                        of one or more formulas
+S-ergmTerm              Evaluation on an induced subgraph
+StdNormal-ergmReference
+                        Standard Normal reference
+Sum-ergmTerm            A sum (or an arbitrary linear combination) of
+                        one or more formulas
+Symmetrize-ergmTerm     Evaluation on symmetrized (undirected) network
+Unif-ergmReference      Continuous Uniform reference
+absdiff-ergmTerm        Absolute difference in nodal attribute
+absdiffcat-ergmTerm     Categorical absolute difference in nodal
+                        attribute
+altkstar-ergmTerm       Alternating k-star
+anova.ergm              ANOVA for ERGM Fits
+approx.hotelling.diff.test
+                        Approximate Hotelling T^2-Test for One or Two
+                        Population Means
+as.network.numeric      Create a Simple Random network of a Given Size
+asymmetric-ergmTerm     Asymmetric dyads
+atleast-ergmTerm        Number of dyads with values greater than or
+                        equal to a threshold
+atmost-ergmTerm         Number of dyads with values less than or equal
+                        to a threshold
+attrcov-ergmTerm        Edge covariate by attribute pairing
+b1concurrent-ergmTerm   Concurrent node count for the first mode in a
+                        bipartite network
+b1cov-ergmTerm          Main effect of a covariate for the first mode
+                        in a bipartite network
+b1degrange-ergmTerm     Degree range for the first mode in a bipartite
+                        network
+b1degree-ergmTerm       Degree for the first mode in a bipartite
+                        network
+b1degrees-ergmConstraint
+                        Preserve the actor degree for bipartite
+                        networks
+b1dsp-ergmTerm          Dyadwise shared partners for dyads in the first
+                        bipartition
+b1factor-ergmTerm       Factor attribute effect for the first mode in a
+                        bipartite network
+b1mindegree-ergmTerm    Minimum degree for the first mode in a
+                        bipartite network
+b1nodematch-ergmTerm    Nodal attribute-based homophily effect for the
+                        first mode in a bipartite network
+b1sociality-ergmTerm    Degree
+b1star-ergmTerm         k-stars for the first mode in a bipartite
+                        network
+b1starmix-ergmTerm      Mixing matrix for k-stars centered on the first
+                        mode of a bipartite network
+b1twostar-ergmTerm      Two-star census for central nodes centered on
+                        the first mode of a bipartite network
+b2concurrent-ergmTerm   Concurrent node count for the second mode in a
+                        bipartite network
+b2cov-ergmTerm          Main effect of a covariate for the second mode
+                        in a bipartite network
+b2degrange-ergmTerm     Degree range for the second mode in a bipartite
+                        network
+b2degree-ergmTerm       Degree for the second mode in a bipartite
+                        network
+b2degrees-ergmConstraint
+                        Preserve the receiver degree for bipartite
+                        networks
+b2dsp-ergmTerm          Dyadwise shared partners for dyads in the
+                        second bipartition
+b2factor-ergmTerm       Factor attribute effect for the second mode in
+                        a bipartite network
+b2mindegree-ergmTerm    Minimum degree for the second mode in a
+                        bipartite network
+b2nodematch-ergmTerm    Nodal attribute-based homophily effect for the
+                        second mode in a bipartite network
+b2sociality-ergmTerm    Degree
+b2star-ergmTerm         k-stars for the second mode in a bipartite
+                        network
+b2starmix-ergmTerm      Mixing matrix for k-stars centered on the
+                        second mode of a bipartite network
+b2twostar-ergmTerm      Two-star census for central nodes centered on
+                        the second mode of a bipartite network
+balance-ergmTerm        Balanced triads
+bd-ergmConstraint       Constrain maximum and minimum vertex degree
+blockdiag-ergmConstraint
+                        Block-diagonal structure constraint
+blocks-ergmConstraint   Constrain blocks of dyads defined by mixing
+                        type on a vertex attribute.
+check.ErgmTerm          Ensures an Ergm Term and its Arguments Meet
+                        Appropriate Conditions
+cohab                   Target statistics and model fit to a
+                        hypothetical 50,000-node network population
+                        with 50,000 nodes based on egocent
+coincidence-ergmTerm    Coincident node count for the second mode in a
+                        bipartite (aka two-mode) network
+concurrent-ergmTerm     Concurrent node count
+concurrentties-ergmTerm
+                        Concurrent tie count
+control.ergm            Auxiliary for Controlling ERGM Fitting
+control.ergm.bridge     Auxiliaries for Controlling 'ergm.bridge.llr()'
+                        and 'logLik.ergm()'
+control.ergm.godfather
+                        Control parameters for 'ergm.godfather()'.
+control.gof             Auxiliary for Controlling ERGM Goodness-of-Fit
+                        Evaluation
+control.san             Auxiliary for Controlling SAN
+control.simulate.ergm   Auxiliary for Controlling ERGM Simulation
+ctriple-ergmTerm        Cyclic triples
+cycle-ergmTerm          k-Cycle Census
+cyclicalties-ergmTerm   Cyclical ties
+cyclicalweights-ergmTerm
+                        Cyclical weights
+degcor-ergmTerm         Degree Correlation
+degcrossprod-ergmTerm   Degree Cross-Product
+degrange-ergmTerm       Degree range
+degree-ergmTerm         Degree
+degree1.5-ergmTerm      Degree to the 3/2 power
+degreedist              Computes and Returns the Degree Distribution
+                        Information for a Given Network
+degreedist-ergmConstraint
+                        Preserve the degree distribution of the given
+                        network
+degrees-ergmConstraint
+                        Preserve the degree of each vertex of the given
+                        network
+density-ergmTerm        Density
+diff-ergmTerm           Difference
+dsp-ergmTerm            Directed dyadwise shared partners
+dyadcov-ergmTerm        Dyadic covariate
+dyadnoise-ergmConstraint
+                        A soft constraint to adjust the sampled
+                        distribution for dyad-level noise with known
+                        perturbation probabilities
+ecoli                   Two versions of an E. Coli network dataset
+edgecov-ergmTerm        Edge covariate
+edges-ergmConstraint    Preserve the edge count of the given network
+edges-ergmTerm          Number of edges in the network
+egocentric-ergmConstraint
+                        Preserve values of dyads incident on vertices
+                        with given attribute
+enformulate.curved-deprecated
+                        Convert a curved ERGM into a form suitable as
+                        initial values for the same ergm. Deprecated in
+                        4.0.0.
+equalto-ergmTerm        Number of dyads with values equal to a specific
+                        value (within tolerance)
+ergm                    Exponential-Family Random Graph Models
+ergm-options            Global options and term options for the 'ergm'
+                        package
+ergm-package            Fit, Simulate and Diagnose Exponential-Family
+                        Models for Networks
+ergm-parallel           Parallel Processing in the 'ergm' Package
+ergm.allstats           Calculate all possible vectors of statistics on
+                        a network for an ERGM
+ergm.bridge.llr         Bridge sampling to evaluate ERGM
+                        log-likelihoods and log-likelihood ratios
+ergm.design             Obtain the set of informative dyads based on
+                        the network structure.
+ergm.exact              Calculate the exact loglikelihood for an ERGM
+ergm.getnetwork         Acquire and verify the network from the LHS of
+                        an 'ergm' formula and verify that it is a valid
+                        network.
+ergm.godfather          A function to apply a given series of changes
+                        to a network.
+ergmConstraint          Sample Space Constraints for Exponential-Family
+                        Random Graph Models
+ergmHint                MCMC Hints for Exponential-Family Random Graph
+                        Models
+ergmKeyword             Keywords defined for Exponential-Family Random
+                        Graph Models
+ergmMPLE                ERGM Predictors and response for logistic
+                        regression calculation of MPLE
+ergmProposal            Metropolis-Hastings Proposal Methods for ERGM
+                        MCMC
+ergmReference           Reference Measures for Exponential-Family
+                        Random Graph Models
+ergmTerm                Terms used in Exponential Family Random Graph
+                        Models
+ergm_MCMC_sample        Internal Function to Sample Networks and
+                        Network Statistics
+ergm_plot.mcmc.list     Plot MCMC list using 'lattice' package graphics
+ergm_state_cache        A rudimentary cache for large objects
+ergm_symmetrize         Return a symmetrized version of a binary
+                        network
+esp-ergmTerm            Directed edgewise shared partners
+faux.desert.high        Faux desert High School as a network object
+faux.dixon.high         Faux dixon High School as a network object
+faux.magnolia.high      Goodreau's Faux Magnolia High School as a
+                        network object
+faux.mesa.high          Goodreau's Faux Mesa High School as a network
+                        object
+fix.curved              Convert a curved ERGM into a corresponding
+                        "fixed" ERGM.
+fixallbut-ergmConstraint
+                        Preserve the dyad status in all but the given
+                        edges
+fixedas-ergmConstraint
+                        Preserve and preclude edges
+florentine              Florentine Family Marriage and Business Ties
+                        Data as a "network" object
+g4                      Goodreau's four node network as a "network"
+                        object
+geweke.diag.mv          Multivariate version of 'coda"s
+                        'coda::geweke.diag()'.
+gof                     Conduct Goodness-of-Fit Diagnostics on a
+                        Exponential Family Random Graph Model
+greaterthan-ergmTerm    Number of dyads with values strictly greater
+                        than a threshold
+gwb1degree-ergmTerm     Geometrically weighted degree distribution for
+                        the first mode in a bipartite network
+gwb1dsp-ergmTerm        Geometrically weighted dyadwise shared partner
+                        distribution for dyads in the first bipartition
+gwb2degree-ergmTerm     Geometrically weighted degree distribution for
+                        the second mode in a bipartite network
+gwb2dsp-ergmTerm        Geometrically weighted dyadwise shared partner
+                        distribution for dyads in the second
+                        bipartition
+gwdegree-ergmTerm       Geometrically weighted degree distribution
+gwdsp-ergmTerm          Geometrically weighted dyadwise shared partner
+                        distribution
+gwesp-ergmTerm          Geometrically weighted edgewise shared partner
+                        distribution
+gwidegree-ergmTerm      Geometrically weighted in-degree distribution
+gwnsp-ergmTerm          Geometrically weighted non-edgewise shared
+                        partner distribution
+gwodegree-ergmTerm      Geometrically weighted out-degree distribution
+hamming-ergmConstraint
+                        Preserve the hamming distance to the given
+                        network (BROKEN: Do NOT Use)
+hamming-ergmTerm        Hamming distance
+idegrange-ergmTerm      In-degree range
+idegree-ergmTerm        In-degree
+idegree1.5-ergmTerm     In-degree to the 3/2 power
+idegreedist-ergmConstraint
+                        Preserve the indegree distribution
+idegrees-ergmConstraint
+                        Preserve indegree for directed networks
+ininterval-ergmTerm     Number of dyads whose values are in an interval
+intransitive-ergmTerm   Intransitive triads
+is.curved               Testing for curved exponential family
+is.dyad.independent     Testing for dyad-independence
+is.valued               Function to check whether an ERGM fit or some
+                        aspect of it is valued
+isolatededges-ergmTerm
+                        Isolated edges
+isolates-ergmTerm       Isolates
+istar-ergmTerm          In-stars
+kapferer                Kapferer's tailor shop data
+kstar-ergmTerm          k-stars
+localtriangle-ergmTerm
+                        Triangles within neighborhoods
+logLik.ergm             A 'logLik' method for 'ergm' fits.
+logLikNull              Calculate the null model likelihood
+m2star-ergmTerm         Mixed 2-stars, a.k.a 2-paths
+mcmc.diagnostics        Conduct MCMC diagnostics on a model fit
+meandeg-ergmTerm        Mean vertex degree
+mm-ergmTerm             Mixing matrix cells and margins
+molecule                Synthetic network with 20 nodes and 28 edges
+mutual-ergmTerm         Mutuality
+nearsimmelian-ergmTerm
+                        Near simmelian triads
+network.list            A convenience container for a list of 'network'
+                        objects, output by 'simulate.ergm' among
+                        others.
+nodal_attributes        Specifying nodal attributes and their levels
+nodecov-ergmTerm        Main effect of a covariate
+nodecovar-ergmTerm      Covariance of undirected dyad values incident
+                        on each actor
+nodefactor-ergmTerm     Factor attribute effect
+nodeicov-ergmTerm       Main effect of a covariate for in-edges
+nodeicovar-ergmTerm     Covariance of in-dyad values incident on each
+                        actor
+nodeifactor-ergmTerm    Factor attribute effect for in-edges
+nodematch-ergmTerm      Uniform homophily and differential homophily
+nodemix-ergmTerm        Nodal attribute mixing
+nodeocov-ergmTerm       Main effect of a covariate for out-edges
+nodeocovar-ergmTerm     Covariance of out-dyad values incident on each
+                        actor
+nodeofactor-ergmTerm    Factor attribute effect for out-edges
+nparam                  Length of the parameter vector associated with
+                        an object or with its terms.
+nsp-ergmTerm            Directed non-edgewise shared partners
+observed-ergmConstraint
+                        Preserve the observed dyads of the given
+                        network
+odegrange-ergmTerm      Out-degree range
+odegree-ergmTerm        Out-degree
+odegree1.5-ergmTerm     Out-degree to the 3/2 power
+odegreedist-ergmConstraint
+                        Preserve the outdegree distribution
+odegrees-ergmConstraint
+                        Preserve outdegree for directed networks
+opentriad-ergmTerm      Open triads
+ostar-ergmTerm          k-Outstars
+param_names             Names of the parameters associated with an
+                        object.
+predict.formula         ERGM-based tie probabilities
+rank_test.ergm          A lack-of-fit test for ERGMs
+receiver-ergmTerm       Receiver effect
+samplk                  Longitudinal networks of positive affection
+                        within a monastery as a "network" object
+sampson                 Cumulative network of positive affection within
+                        a monastery as a "network" object
+san                     Generate networks with a given set of network
+                        statistics
+search.ergmTerms        Search ERGM terms, constraints, references,
+                        hints, and proposals
+sender-ergmTerm         Sender effect
+simmelian-ergmTerm      Simmelian triads
+simmelianties-ergmTerm
+                        Ties in simmelian triads
+simulate.ergm           Draw from the distribution of an Exponential
+                        Family Random Graph Model
+simulate.formula        A 'simulate' Method for 'formula' objects that
+                        dispatches based on the Left-Hand Side
+smalldiff-ergmTerm      Number of ties between actors with similar
+                        attribute values
+smallerthan-ergmTerm    Number of dyads with values strictly smaller
+                        than a threshold
+snctrl                  Statnet Control
+sociality-ergmTerm      Undirected degree
+sparse-ergmHint         Sparse network
+spectrum0.mvar          Multivariate version of 'coda"s
+                        'spectrum0.ar()'.
+strat-ergmHint          Stratify Proposed Toggles by Mixing Type on a
+                        Vertex Attribute
+sum-ergmTerm            Sum of dyad values (optionally taken to a
+                        power)
+summary.ergm            Summarizing ERGM Model Fits
+summary.formula         Calculation of network or graph statistics or
+                        other attributes specified on a formula
+threetrail-ergmTerm     Three-trails
+transitive-ergmTerm     Transitive triads
+transitiveties-ergmTerm
+                        Transitive ties
+transitiveweights-ergmTerm
+                        Transitive weights
+triadcensus-ergmTerm    Triad census
+triangle-ergmTerm       Triangles
+tripercent-ergmTerm     Triangle percentage
+ttriple-ergmTerm        Transitive triples
+twopath-ergmTerm        2-Paths
+update.network          Update the edges in a network based on a matrix
+wtd.median              Weighted Median

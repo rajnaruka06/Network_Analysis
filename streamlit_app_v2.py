@@ -274,8 +274,7 @@ if __name__ == "__main__":
     r_script_path = 'install_ergm.R'
     r_command = ['Rscript', r_script_path]
 
-    result = subprocess.call(r_command)
-    st.write(result)
+    subprocess.call(r_command)
     st.write(os.listdir("./r_packages"))
 
     st.title("Network Analysis App")

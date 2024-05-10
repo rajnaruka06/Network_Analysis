@@ -1,5 +1,3 @@
-cat("R version:", R.version$version.string, "\n")
-
 # Path to the directory where you want to install the package
 r_packages_dir <- "./r_packages"
 
@@ -9,5 +7,5 @@ if (!dir.exists(r_packages_dir)) {
 }
 
 cat("Installing ergm package...")
-install.packages("ergm_4.6.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
+install.packages("./ergm_4.6.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 cat("\nSuccessfully installed ergm!\n")

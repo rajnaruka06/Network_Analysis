@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="The Statnet Team" />
+
+<meta name="date" content="2023-12-17" />
+
+<title>Nodal Attribute Specification in ERGM Terms</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Nodal Attribute Specification in ERGM
+Terms</h1>
+<h4 class="author">The Statnet Team</h4>
+<h4 class="date">2023-12-17</h4>
+
+
+
+<p>This document provides some examples of how to specify nodal
+attributes and their transformations in <code>ergm</code> terms. For the
+R help on the topic, see <code>?nodal_attributes</code> and for help on
+implementing terms that use this interface, see
+<code>API?nodal_attributes</code>.</p>
+<div id="extraction-and-transformation" class="section level2">
+<h2>Extraction and transformation</h2>
+<p>It is sometimes desirable to specify a transformation of a nodal
+attribute as a covariate in a model term. Most <code>ergm</code> terms
+now support a new Tidyverse-inspired user interface to do so. Arguments
+using this interface are typically called <code>attr</code>,
+<code>attrs</code>, <code>by</code>, or <code>on</code> and are
+interpreted depending on their type:</p>
+<dl>
+<dt>character string</dt>
+<dd>
+<p>Extract the vertex attribute with this name.</p>
+</dd>
+<dt>character vector of length greater than 1</dt>
+<dd>
+<p>Extract the vertex attributes and paste them together, separated by
+dots if the term expects categorical attributes and (typically) combine
+into a covariate matrix if it expects quantitative attributes.</p>
+</dd>
+<dt>function</dt>
+<dd>
+<p>The function is called on the LHS network, expected to return a
+vector or matrix of appropriate dimension. (Shorter vectors and matrix
+columns will be recycled as needed.)</p>
+</dd>
+<dt>formula</dt>
+<dd>
+<p>Borrowing the interface from , the expression on the right hand side
+of the formula is evaluated in an environment of the vertex attributes
+of the network, expected to return a vector or matrix of appropriate
+dimension. (Shorter vectors and matrix columns will be recycled as
+needed.) Within this expression, the network itself accessible as either
+or . For example, in the example below, would return the absolute
+difference of each actor’s “Grade” attribute from its network-wide mean,
+divided by the network size.</p>
+</dd>
+<dt> object created by </dt>
+<dd>
+<p>Use as is, checking only for correct length and type, with optional
+attribute indicating the predictor’s name.</p>
+</dd>
+</dl>
+<p>Any of these arguments may also be wrapped in
+<code>COLLAPSE_SMALLEST(attr, n, into)</code>, a convenience function
+that will transform the attribute by collapsing the smallest
+<code>n</code> categories into one, naming it according to the
+<code>into</code> argument. Note that <code>into</code> must be of the
+same type (numeric, character, etc.) as the vertex attribute in
+question. This is compatible with using <code>magrittr</code>’s pipes
+for improved readability, i.e.,
+<code>attr %&gt;% COLLAPSE_SMALLEST(n, into)</code>. This is illustrated
+in the next section.</p>
+<p>Then, taking <code>faux.mesa.high</code> dataset’s actor attribute
+<code>Grade</code>, representing the grade of the student, we can
+evaluate, equivalently, the linear effect of grade on overall activity
+of an actor:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ergm)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(faux.mesa.high)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodecov</span>(<span class="st">&quot;Grade&quot;</span>)) <span class="co"># String</span></span></code></pre></div>
+<pre><code>## nodecov.Grade 
+##          3491</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodecov</span>(<span class="sc">~</span>Grade)) <span class="co"># Formula</span></span></code></pre></div>
+<pre><code>## nodecov.Grade 
+##          3491</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodecov</span>(<span class="cf">function</span>(nw) nw<span class="sc">%v%</span><span class="st">&quot;Grade&quot;</span>)) <span class="co"># Function</span></span></code></pre></div>
+<pre><code>## nodecov.nw%v%&quot;Grade&quot; 
+##                 3491</code></pre>
+<p>Taking advantage of <code>nodecov</code>’s new ability to take
+matrix-valued arguments, we might also evaluate a polynomial effect of
+<code>Grade</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodecov</span>(<span class="sc">~</span><span class="fu">cbind</span>(Grade,Grade<span class="sc">^</span><span class="dv">2</span>)))</span></code></pre></div>
+<pre><code>## Warning: In term &#39;nodecov&#39; in package &#39;ergm&#39;: Attribute specification
+## &#39;~cbind(Grade, Grade^2)&#39; is a matrix with some column names set and others
+## not; you may need to set them manually. See example(nodal_attributes) for
+## more information.</code></pre>
+<pre><code>## nodecov.cbind(Grade,Grade^2).1 nodecov.cbind(Grade,Grade^2).2 
+##                           3491                          31123</code></pre>
+<p>Notice the Warning. This is because the way <code>cbind()</code>
+assigns column names, the name of the second column will be blank unless
+we set it directly, in which case it can be anything:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(x,x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
+<pre><code>##      x  
+## [1,] 1 1
+## [2,] 2 4</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(x,<span class="at">x2=</span>x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
+<pre><code>##      x x2
+## [1,] 1  1
+## [2,] 2  4</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(x,<span class="st">`</span><span class="at">x^2</span><span class="st">`</span><span class="ot">=</span>x<span class="sc">^</span><span class="dv">2</span>) <span class="co"># Backticks for arbitrary names.</span></span></code></pre></div>
+<pre><code>##      x x^2
+## [1,] 1   1
+## [2,] 2   4</code></pre>
+<p>As the warning suggested, we can ensure that all columns have names,
+in which case they are not replaced with numbers:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodecov</span>(<span class="sc">~</span><span class="fu">cbind</span>(Grade,<span class="at">Grade2=</span>Grade<span class="sc">^</span><span class="dv">2</span>)))</span></code></pre></div>
+<pre><code>##  nodecov.Grade nodecov.Grade2 
+##           3491          31123</code></pre>
+<p>General functions, such as <code>stats::poly()</code>, can also be
+used:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodecov</span>(<span class="sc">~</span><span class="fu">poly</span>(Grade,<span class="dv">2</span>)))</span></code></pre></div>
+<pre><code>## nodecov.poly(Grade,2).1 nodecov.poly(Grade,2).2 
+##               -2.412818                4.974174</code></pre>
+<p>We can even pass a random nodal covariate. Notice that setting an
+attribute “name” gives it a label:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>randomcov <span class="ot">&lt;-</span> <span class="fu">structure</span>(<span class="fu">I</span>(<span class="fu">rbinom</span>(<span class="fu">network.size</span>(faux.mesa.high),<span class="dv">1</span>,<span class="fl">0.5</span>)), <span class="at">name=</span><span class="st">&quot;random&quot;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodefactor</span>(<span class="fu">I</span>(randomcov)))</span></code></pre></div>
+<pre><code>## nodefactor.random.1 
+##                 204</code></pre>
+</div>
+<div id="level-selection" class="section level2">
+<h2>Level selection</h2>
+<p>For categorical attributes, to select which levels are of interest
+and their ordering, use the argument . Selection of nodes (from the
+appropriate vector of nodal indices) is likewise handled as the
+selection of levels, using the argument . These arguments are
+interpreted as follows:</p>
+<dl>
+<dt> object created by </dt>
+<dd>
+<p>Use the given list of levels as is.</p>
+</dd>
+<dt>numeric or logical vector</dt>
+<dd>
+<p>Used for indexing of a list of all possible levels (typically, unique
+values of the attribute) in default order (typically lexicographic). In
+particular, <code>levels=TRUE</code> will retain all levels. Negative
+values exclude. Another special value is <code>LARGEST</code>, which
+will refer to the most frequent category, so, say, to set such a
+category as the baseline, pass <code>levels=-LARGEST</code>. In
+addition, <code>LARGEST(n)</code> will refer to the <code>n</code>
+largest categories. <code>SMALLEST</code> works analogously. Note that
+if there are ties in frequencies, they will be broken arbitrarily. To
+specify numeric or logical levels literally, wrap in
+<code>I()</code>.</p>
+</dd>
+<dt></dt>
+<dd>
+<p>Retain all possible levels; usually equivalent to passing .</p>
+</dd>
+<dt>character vector</dt>
+<dd>
+<p>Use as is.</p>
+</dd>
+<dt>function</dt>
+<dd>
+<p>The function is called on the list of unique values of the attribute,
+the values of the attribute themselves, and the network itself,
+depending on its arity. Its return value is interpreted as above.</p>
+</dd>
+<dt>formula</dt>
+<dd>
+<p>The expression on the right hand side of the formula is evaluated in
+an environment in which the network itself is accessible as , the list
+of unique values of the attribute as or as , and the attribute vector
+itself as . Its return value is interpreted as above.</p>
+</dd>
+</dl>
+<p>Note that or often has a default that is sensible for the term in
+question.</p>
+<p>Returning to the <code>faux.mesa.high</code> example, and treating
+<code>Grade</code> as a categorical variable, we can use a number of
+combinations:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Activity by grade with a baseline grade excluded:</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodefactor</span>(<span class="sc">~</span>Grade))</span></code></pre></div>
+<pre><code>##  nodefactor.Grade.8  nodefactor.Grade.9 nodefactor.Grade.10 
+##                  75                  65                  36 
+## nodefactor.Grade.11 nodefactor.Grade.12 
+##                  49                  28</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retain all levels:</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodefactor</span>(<span class="sc">~</span>Grade, <span class="at">levels=</span><span class="cn">TRUE</span>)) <span class="co"># or levels=NULL</span></span></code></pre></div>
+<pre><code>##  nodefactor.Grade.7  nodefactor.Grade.8  nodefactor.Grade.9 
+##                 153                  75                  65 
+## nodefactor.Grade.10 nodefactor.Grade.11 nodefactor.Grade.12 
+##                  36                  49                  28</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the largest grade as baseline (also Grade 7):</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(faux.mesa.high <span class="sc">%v%</span> <span class="st">&quot;Grade&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+##  7  8  9 10 11 12 
+## 62 40 42 25 24 12</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodefactor</span>(<span class="sc">~</span>Grade, <span class="at">levels=</span><span class="sc">-</span>LARGEST))</span></code></pre></div>
+<pre><code>##  nodefactor.Grade.8  nodefactor.Grade.9 nodefactor.Grade.10 
+##                  75                  65                  36 
+## nodefactor.Grade.11 nodefactor.Grade.12 
+##                  49                  28</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Collapse the smallest two grades (11 and 12) into a new category, 99.</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr) <span class="co"># For the %&gt;% operator.</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">nodefactor</span>((<span class="sc">~</span>Grade) <span class="sc">%&gt;%</span> <span class="fu">COLLAPSE_SMALLEST</span>(<span class="dv">2</span>, <span class="dv">99</span>)))</span></code></pre></div>
+<pre><code>##  nodefactor.Grade.8  nodefactor.Grade.9 nodefactor.Grade.10 
+##                  75                  65                  36 
+## nodefactor.Grade.99 
+##                  77</code></pre>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mixing between lower and upper grades:</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="sc">~</span>Grade<span class="sc">&gt;=</span><span class="dv">10</span>))</span></code></pre></div>
+<pre><code>## mm[Grade&gt;=10=FALSE,Grade&gt;=10=TRUE]  mm[Grade&gt;=10=TRUE,Grade&gt;=10=TRUE] 
+##                                 27                                 43</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mixing between grades 7 and 8 only:</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Grade&quot;</span>, <span class="at">levels=</span><span class="fu">I</span>(<span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">8</span>))))</span></code></pre></div>
+<pre><code>## mm[Grade=7,Grade=8] mm[Grade=8,Grade=8] 
+##                   0                  33</code></pre>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Grade&quot;</span>, <span class="at">levels=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>))</span></code></pre></div>
+<pre><code>## mm[Grade=7,Grade=8] mm[Grade=8,Grade=8] 
+##                   0                  33</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># or using levels2 (see ? mm) to filter the combinations of levels,</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Grade&quot;</span>,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">levels2=</span><span class="sc">~</span><span class="fu">sapply</span>(.levels,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">function</span>(l)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>                          l[[<span class="dv">1</span>]]<span class="sc">%in%</span><span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">8</span>) <span class="sc">&amp;&amp;</span> l[[<span class="dv">2</span>]]<span class="sc">%in%</span><span class="fu">c</span>(<span class="dv">7</span>,<span class="dv">8</span>))))</span></code></pre></div>
+<pre><code>## mm[Grade=7,Grade=7] mm[Grade=7,Grade=8] mm[Grade=8,Grade=8] 
+##                  75                   0                  33</code></pre>
+<p>Generally, <code>levels2=</code> selects from among the combinations
+of levels selected by <code>levels=</code>. Here are some examples,
+using the attribute <code>Sex</code> (which as two levels):</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here is the full list of combinations of sexes in an undirected network:</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=F] mm[Sex=F,Sex=M] mm[Sex=M,Sex=M] 
+##              82              71              50</code></pre>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select only the second combination:</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span><span class="dv">2</span>))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=M] 
+##              71</code></pre>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Equivalently,</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span><span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=M] 
+##              71</code></pre>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span><span class="fu">c</span>(<span class="cn">FALSE</span>,<span class="cn">TRUE</span>,<span class="cn">FALSE</span>)))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=M] 
+##              71</code></pre>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select all *but* the second one:</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span><span class="sc">-</span><span class="dv">2</span>))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=F] mm[Sex=M,Sex=M] 
+##              82              50</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We can select via a mixing matrix: (Network is undirected and</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="co"># attributes are the same on both sides, so we can use either M or</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="co"># its transpose.)</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>(M <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="cn">FALSE</span>,<span class="cn">TRUE</span>,<span class="cn">FALSE</span>,<span class="cn">FALSE</span>),<span class="dv">2</span>,<span class="dv">2</span>))</span></code></pre></div>
+<pre><code>##       [,1]  [,2]
+## [1,] FALSE FALSE
+## [2,]  TRUE FALSE</code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span>M)<span class="sc">+</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span><span class="fu">t</span>(M)))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=M] mm[Sex=F,Sex=M] 
+##              71              71</code></pre>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select via an index of a cell:</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>,<span class="dv">2</span>)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(<span class="st">&quot;Sex&quot;</span>, <span class="at">levels2=</span>idx))</span></code></pre></div>
+<pre><code>## mm[Sex=F,Sex=M] 
+##              71</code></pre>
+<p>The attributes of the <code>mm()</code> term can be a two-sided
+formula with different attributes:</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(Grade<span class="sc">~</span>Race, <span class="at">levels2=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+<pre><code>##  mm[Grade=7,Race=Black]  mm[Grade=8,Race=Black]  mm[Grade=9,Race=Black] 
+##                       1                       6                       5 
+## mm[Grade=10,Race=Black] mm[Grade=11,Race=Black] mm[Grade=12,Race=Black] 
+##                       4                       7                       3 
+##   mm[Grade=7,Race=Hisp]   mm[Grade=8,Race=Hisp]   mm[Grade=9,Race=Hisp] 
+##                      92                      15                      28 
+##  mm[Grade=10,Race=Hisp]  mm[Grade=11,Race=Hisp]  mm[Grade=12,Race=Hisp] 
+##                      10                      19                      14 
+##  mm[Grade=7,Race=NatAm]  mm[Grade=8,Race=NatAm]  mm[Grade=9,Race=NatAm] 
+##                      37                      53                      25 
+## mm[Grade=10,Race=NatAm] mm[Grade=11,Race=NatAm] mm[Grade=12,Race=NatAm] 
+##                      16                      15                      10 
+##  mm[Grade=7,Race=Other]  mm[Grade=8,Race=Other]  mm[Grade=9,Race=Other] 
+##                       0                       0                       1 
+## mm[Grade=10,Race=Other] mm[Grade=11,Race=Other] mm[Grade=12,Race=Other] 
+##                       0                       0                       0 
+##  mm[Grade=7,Race=White]  mm[Grade=8,Race=White]  mm[Grade=9,Race=White] 
+##                      23                       1                       6 
+## mm[Grade=10,Race=White] mm[Grade=11,Race=White] mm[Grade=12,Race=White] 
+##                       6                       8                       1</code></pre>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># It is possible to have collapsing functions in the formula; note</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the parentheses around &quot;~Race&quot;: this is because a formula</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="co"># operator (~) has lower precedence than pipe (|&gt;):</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(faux.mesa.high<span class="sc">~</span><span class="fu">mm</span>(Grade<span class="sc">~</span>(<span class="sc">~</span>Race) <span class="sc">%&gt;%</span> <span class="fu">COLLAPSE_SMALLEST</span>(<span class="dv">3</span>,<span class="st">&quot;BWO&quot;</span>), <span class="at">levels2=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+<pre><code>##    mm[Grade=7,Race=BWO]    mm[Grade=8,Race=BWO]    mm[Grade=9,Race=BWO] 
+##                      24                       7                      12 
+##   mm[Grade=10,Race=BWO]   mm[Grade=11,Race=BWO]   mm[Grade=12,Race=BWO] 
+##                      10                      15                       4 
+##   mm[Grade=7,Race=Hisp]   mm[Grade=8,Race=Hisp]   mm[Grade=9,Race=Hisp] 
+##                      92                      15                      28 
+##  mm[Grade=10,Race=Hisp]  mm[Grade=11,Race=Hisp]  mm[Grade=12,Race=Hisp] 
+##                      10                      19                      14 
+##  mm[Grade=7,Race=NatAm]  mm[Grade=8,Race=NatAm]  mm[Grade=9,Race=NatAm] 
+##                      37                      53                      25 
+## mm[Grade=10,Race=NatAm] mm[Grade=11,Race=NatAm] mm[Grade=12,Race=NatAm] 
+##                      16                      15                      10</code></pre>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
