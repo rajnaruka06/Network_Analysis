@@ -9,5 +9,5 @@ if (!dir.exists(r_packages_dir)) {
 }
 
 cat("Installing ergm package...")
-install.packages("statnet", lib=r_packages_dir, repos="https://cloud.r-project.org/")
+install.packages("ergm_4.6.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 cat("\nSuccessfully installed ergm!\n")
