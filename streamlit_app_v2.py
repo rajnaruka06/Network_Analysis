@@ -10,6 +10,7 @@ from openpyxl import load_workbook
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
+import rpy2.robjects.packages as rpackages
 
 import tempfile
 
@@ -139,9 +140,11 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 r_net_data = ro.conversion.py2rpy(network_df)
 
             ro.globalenv['df'] = r_net_data
+            utils = rpackages.importr('utils')
+            utils.install_packages('ergm', lib=r_lib_path)
             
             ro.r(f'''
-                install.packages("ergm", lib="{r_lib_path}")
+                # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
                 library(ergm, lib.loc="{r_lib_path}")
                 df$Source <- as.character(df$source)
