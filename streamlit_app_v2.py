@@ -6,6 +6,7 @@ from networkx.algorithms import community
 import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
+import  os
 
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
@@ -131,7 +132,11 @@ def create_community_visualization(graph, network_statistics):
 
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
     with tempfile.TemporaryDirectory() as temp_dir:
+        
         r_lib_path = temp_dir
+        utils = rpackages.importr('utils')
+        utils.install_packages('ergm', lib=r_lib_path)
+        st.write(os.listdir(temp_dir))
 
         if edges_only:
 
@@ -140,13 +145,11 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 r_net_data = ro.conversion.py2rpy(network_df)
 
             ro.globalenv['df'] = r_net_data
-            utils = rpackages.importr('utils')
-            utils.install_packages('ergm', lib=r_lib_path)
             
             ro.r(f'''
                 # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm, lib.loc="{r_lib_path}")
+                library(ergm)
                 df$Source <- as.character(df$source)
                 df$Target <- as.character(df$target)
                 net <- network::network(df, directed = TRUE, loops = FALSE)
