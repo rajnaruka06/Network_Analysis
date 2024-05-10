@@ -12,6 +12,7 @@ import subprocess
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
+import os
 
 
 
@@ -278,7 +279,7 @@ if __name__ == "__main__":
 
     # Run the R script using subprocess.run()
     result = subprocess.call(r_command)
-    st.write(result)
+    st.write(os.listdir("./r_packages"))
 
     st.title("Network Analysis App")
     st.sidebar.title("Options")
