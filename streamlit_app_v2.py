@@ -6,8 +6,6 @@ from networkx.algorithms import community
 import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
-import  os
-import time
 import tempfile
 
 import rpy2.robjects as ro
@@ -137,8 +135,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
         r_lib_path = temp_dir
         utils = rpackages.importr('utils')
-        utils.install_packages('ergm', lib=r_lib_path)
-        st.write(os.listdir(temp_dir))
+        result = utils.install_packages('ergm', lib=r_lib_path)
+        if not result:
+            st.write("ERGM package not installed successfully") 
 
         if edges_only:
 
@@ -151,7 +150,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ro.r(f'''
                 # install.packages("ergm", lib="{r_lib_path}")
                 library(network)
-                library(ergm, r.lib.loc="ergm_package")
+                library(ergm)
                 df$Source <- as.character(df$source)
                 df$Target <- as.character(df$target)
                 net <- network::network(df, directed = TRUE, loops = FALSE)
