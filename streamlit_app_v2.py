@@ -135,7 +135,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
         r_lib_path = temp_dir
         utils = rpackages.importr('utils')
-        result = utils.install_packages('ergm', lib=r_lib_path)
+        # result = utils.install_packages('ergm', lib=r_lib_path)
+        result = utils.install.packages("ergm_4.6.0.tar.gz", type = "source")
+
         if not result:
             st.write("ERGM package not installed successfully") 
 
