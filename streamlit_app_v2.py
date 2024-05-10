@@ -208,8 +208,49 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
     return True
 
-def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
-    return "Work in Progress"
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        r_lib_path = temp_dir
+
+        # Ensure R can handle Pandas DataFrame
+        pandas2ri.activate()
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            r_net_data = ro.conversion.py2rpy(network_df)
+            r_attr_data = ro.conversion.py2rpy(attribute_df)
+
+        ro.globalenv['net_df'] = r_net_data
+        ro.globalenv['attr_df'] = r_attr_data
+        ro.globalenv['selected_attribute'] = selected_attribute
+
+        try:
+            ro.r(f'''
+            install.packages("xergm", lib="{r_lib_path}")
+            library(network)
+            library(xergm)
+
+            net <- network::network(net_df, directed = TRUE, loops = FALSE)
+
+            # Ensure that the attribute is correctly formatted and attached to the network
+            net %v% "{selected_attribute}" <- attr_df$"{selected_attribute}"
+
+            # Fit the ALAAM using btergm from the xergm package
+            # The formula can be adjusted based on specific hypotheses about attribute interactions
+            formula <- paste("net ~ edges + nodecov('", "{selected_attribute}", "')", sep="")
+            alaam_model <- xergm::btergm(net, formula = as.formula(formula), R = 1000)  # R is the number of bootstraps
+
+            summary_alaam <- summary(alaam_model)
+            writeLines(capture.output(summary_alaam), "{output_file_path}")
+            ''')
+
+        except Exception as e:
+            with open(output_file_path, 'r') as f:
+                summary_text = f.read().strip()
+            if summary_text is None: 
+                print(f"An error occurred: {e}")
+                return False
+        
+    return True
 
 def _read_csv(upload_file):
     df = pd.read_csv(upload_file)
@@ -351,13 +392,23 @@ if __name__ == "__main__":
                 st.write("Residual Deviance:", residual_deviance_value, f"on {residual_deviance_df} degrees of freedom")
                 st.write("AIC:", aic_value)
                 st.write("BIC:", bic_value)
-            
-            
+            else:
+                st.error("An error occurred during ERGM analysis")
+        
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
-            edges_only=uploaded_file.name.endswith(".csv")
-            alaam_file_path = perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only)
-            
+            if uploaded_file.name.endswith(".csv"):
+                st.warning("ALAAM Analysis is not supported for edges only network")    
+            else:
+                alaam_file_path = "alaam_analysis_results.txt"
+                alaam_success = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path)
+                if alaam_success:
+                    with open(alaam_success, 'r') as f:
+                        summary_text = f.read().strip()
+                    st.write(summary_text)
+                else:
+                    st.error("An error occurred during ALAAM analysis")
+
 
         # # Download report
         st.sidebar.title("Download Report")
