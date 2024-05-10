@@ -1,5 +1,3 @@
 r-base
 r-base-dev
 r-cran-network
-r-cran-ergm
-r-cran-statnet
