@@ -1,3 +1,5 @@
+cat("R version:", R.version$version.string, "\n")
+
 # Path to the directory where you want to install the package
 r_packages_dir <- "./r_packages"
 
