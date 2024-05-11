@@ -14,5 +14,6 @@ install.packages("lpSolveAPI", lib=r_packages_dir, repos="https://cran.r-project
 install.packages("trust", lib=r_packages_dir, repos="https://cran.r-project.org/")
 install.packages("rle", lib=r_packages_dir, repos="https://cran.r-project.org/")
 install.packages("./statnet.common_4.6.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
+install.packages("./network_1.17.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 install.packages("./ergm_4.1.2.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 cat("\nSuccessfully installed ergm!\n")
