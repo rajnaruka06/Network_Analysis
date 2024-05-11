@@ -14,7 +14,7 @@ for line in results_lines[3:-7]:
         try:
             row.append(float(val))
         except ValueError:
-            row.append(float(val[1:]))
+            pass
         else:
             continue
     data.append(row)
@@ -37,4 +37,4 @@ for idx, line in enumerate(results_lines):
     print(line)
 
 print('#'*50)
-# print(summary_df)
+print(summary_df)
