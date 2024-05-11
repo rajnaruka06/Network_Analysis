@@ -138,7 +138,7 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis_nodematch(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
     with tempfile.TemporaryDirectory() as temp_dir:
         
         r_lib_path = temp_dir
@@ -206,76 +206,6 @@ def perform_ergm_analysis_nodematch(network_df, attribute_df, selected_attribute
         st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
 
         return summary_text
-
-def perform_ergm_analysis_nodecov(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
-    with tempfile.TemporaryDirectory() as temp_dir:
-        
-        r_lib_path = temp_dir
-
-        if edges_only:
-
-            pandas2ri.activate()
-            with localconverter(ro.default_converter + pandas2ri.converter):
-                r_net_data = ro.conversion.py2rpy(network_df)
-
-            ro.globalenv['df'] = r_net_data
-            
-            ro.r(f'''
-                # install.packages("ergm", lib="{r_lib_path}")
-                library(network, lib.loc="./r_packages")
-                library(ergm, lib.loc="./r_packages")
-                df$Source <- as.character(df$source)
-                df$Target <- as.character(df$target)
-                net <- network::network(df, directed = TRUE, loops = FALSE)
-
-                # ERGM formula for edges only
-                formula <- "net ~ edges"
-                ergm_model <- ergm::ergm(as.formula(formula))
-                summary_ergm <- summary(ergm_model)
-                writeLines(capture.output(summary_ergm), "{output_file_path}")
-                ''')
-        else:
-            
-            attribute_df = attribute_df[['NodeID', selected_attribute]]
-            attribute_df.dropna(subset=[selected_attribute], inplace=True)
-
-            net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
-            # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
-            # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
-            # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
-            net_data.drop(columns=['NodeID'], inplace=True)
-            
-            pandas2ri.activate()
-            with localconverter(ro.default_converter + pandas2ri.converter):
-                r_net_data = ro.conversion.py2rpy(net_data)
-
-            ro.globalenv['df'] = r_net_data
-            ro.globalenv['selected_attribute'] = selected_attribute
-            ro.r(f'''
-                    # install.packages("ergm", lib="{r_lib_path}")
-                library(network, lib.loc="./r_packages")
-                library(ergm, lib.loc="./r_packages")
-
-                # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
-                # formula <- paste("net ~ edges + nodecov('", "Attendance", "', diff = FALSE)", sep="")
-
-                net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
-                formula <- paste("net ~ edges + nodecov('", "{selected_attribute}", "', diff = FALSE)", sep="")
-
-                
-                ergm_model <- ergm::ergm(as.formula(formula))
-                summary_ergm <- summary(ergm_model)
-                    
-                writeLines(capture.output(summary_ergm), "{output_file_path}")
-                ''')
-
-            
-        with open(output_file_path, 'r') as f:
-            summary_text = f.read().strip()
-        st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
-
-        return summary_text
-
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
     
@@ -449,15 +379,11 @@ if __name__ == "__main__":
         selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
         if selected_model == "ERGM":
-            analysis_choice = st.sidebar.radio("Choose Analysis Type", ("NodeMatch", "NodeCov"))
             st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
             ergm_file_path = "ergm_analysis_results.txt"
             with st.spinner("Performing ERGM Analysis..."):
-                if analysis_choice == "NodeMatch":
-                    summary_text = perform_ergm_analysis_nodematch(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
-                else:
-                    summary_text = perform_ergm_analysis_nodecov(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
+                summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
                         
             ## Manual labour to display ERGM summary
             if summary_text is not None:
