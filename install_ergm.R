@@ -13,6 +13,15 @@ install.packages("coda", lib=r_packages_dir, repos="https://cran.r-project.org/"
 install.packages("lpSolveAPI", lib=r_packages_dir, repos="https://cran.r-project.org/")
 install.packages("trust", lib=r_packages_dir, repos="https://cran.r-project.org/")
 install.packages("rle", lib=r_packages_dir, repos="https://cran.r-project.org/")
+
+# install.packages("lifecycle", lib=r_packages_dir, repos="https://cran.r-project.org/")
+# install.packages("rlang", lib=r_packages_dir, repos="https://cran.r-project.org/")
+# install.packages("vctrs", lib=r_packages_dir, repos="https://cran.r-project.org/")
+# install.packages("pillar", lib=r_packages_dir, repos="https://cran.r-project.org/")
+
+install.packages("purrr", lib=r_packages_dir, repos="https://cran.r-project.org/")
+install.packages("memoise", lib=r_packages_dir, repos="https://cran.r-project.org/")
+
 install.packages("tibble", lib=r_packages_dir, repos="https://cran.r-project.org/")
 install.packages("magrittr", lib=r_packages_dir, repos="https://cran.r-project.org/")
 install.packages("./statnet.common_4.6.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
