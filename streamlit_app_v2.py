@@ -14,6 +14,10 @@ from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 import os
 
+r_script_path = 'install_ergm.R'
+r_command = ['Rscript', r_script_path]
+subprocess.call(r_command)
+
 
 
 def create_graph(network_df):
@@ -270,11 +274,6 @@ def _read_excel(uploaded_file):
 
 
 if __name__ == "__main__":
-
-    r_script_path = 'install_ergm.R'
-    r_command = ['Rscript', r_script_path]
-
-    subprocess.call(r_command)
     st.write(os.listdir("./r_packages"))
 
     st.title("Network Analysis App")
