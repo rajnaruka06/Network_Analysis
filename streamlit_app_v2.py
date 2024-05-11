@@ -15,7 +15,7 @@ from rpy2.robjects.conversion import localconverter
 import os
 
 
-@st.cache_resource(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def install_r_packages():
     r_script_path = 'install_ergm.R'
     r_command = ['Rscript', r_script_path]
