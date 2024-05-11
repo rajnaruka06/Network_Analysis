@@ -138,7 +138,7 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt", gof_output_file_path="gof_analysis_results.txt"):
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
     with tempfile.TemporaryDirectory() as temp_dir:
         
         r_lib_path = temp_dir
@@ -164,8 +164,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 ergm_model <- ergm::ergm(as.formula(formula))
                 summary_ergm <- summary(ergm_model)
                 writeLines(capture.output(summary_ergm), "{output_file_path}")
-                gof_results <- gof(ergm_model, GOF=~degree+edgecov("edges"))
-                writeLines(capture.output(gof_results), "{gof_output_file_path}")
 
                 ''')
         else:
@@ -201,20 +199,14 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
                 summary_ergm <- summary(ergm_model)
                     
                 writeLines(capture.output(summary_ergm), "{output_file_path}")
-
-                gof_results <- gof(ergm_model, GOF=~degree+edgecov("edges"))
-                writeLines(capture.output(gof_results), "{gof_output_file_path}")
                 ''')
 
             
         with open(output_file_path, 'r') as f:
             summary_text = f.read().strip()
-        with open(gof_output_file_path, 'r') as f:
-            gof_summary_text = f.read().strip()
         st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
-        st.download_button(label="Download GOF Analysis Results.txt", data=gof_summary_text, mime="text/plain")
 
-        return summary_text, gof_summary_text
+        return summary_text
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
     
@@ -325,8 +317,6 @@ def _show_ergm_report(summary_text, edges_only=False):
     st.write("AIC:", aic_value)
     st.write("BIC:", bic_value)
 
-def _show_ergm_gof(summary_text):
-    pass
 
 if __name__ == "__main__":
 
@@ -398,19 +388,13 @@ if __name__ == "__main__":
             edges_only=uploaded_file.name.endswith(".csv")
             ergm_file_path = "ergm_analysis_results.txt"
             with st.spinner("Performing ERGM Analysis..."):
-                summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
+                summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
                         
             ## Manual labour to display ERGM summary
             if summary_text is not None:
                 _show_ergm_report(summary_text, edges_only = edges_only)
             else:
                 st.error("An error occurred during ERGM analysis")
-            
-            ## Manual labour to display GOF summary
-            if gof_summary_text is not None:
-                _show_ergm_gof(gof_summary_text)
-            else:
-                st.error("An error occurred during GOF analysis")
         
         elif selected_model == "ALAAM":
             st.header("ALAAM Analysis")
