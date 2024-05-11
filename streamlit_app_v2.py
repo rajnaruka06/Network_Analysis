@@ -204,7 +204,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             
         with open(output_file_path, 'r') as f:
             summary_text = f.read().strip()
-        # st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
+        st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
 
         return summary_text
 
@@ -319,7 +319,7 @@ if __name__ == "__main__":
     st.set_page_config(page_title="Network Analysis App", page_icon="📊", layout="wide")
     output, error = install_r_packages()
 
-    st.write(os.listdir("./r_packages"))
+    # st.write(os.listdir("./r_packages"))
 
     st.title("Network Analysis App")
     st.sidebar.title("Options")
