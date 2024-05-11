@@ -15,6 +15,14 @@ from rpy2.robjects.conversion import localconverter
 import os
 
 
+@st.cache_resource(allow_output_mutation=True)
+def install_r_packages():
+    r_script_path = 'install_ergm.R'
+    r_command = ['Rscript', r_script_path]
+    process = subprocess.Popen(r_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    output, error = process.communicate()
+    return output, error
+
 
 def create_graph(network_df):
     graph = nx.Graph()
@@ -271,11 +279,8 @@ def _read_excel(uploaded_file):
 
 if __name__ == "__main__":
 
-    r_script_path = 'install_ergm.R'
-    r_command = ['Rscript', r_script_path]
-
-    with st.spinner("Installing R packages..."):
-        subprocess.call(r_command)
+    st.set_page_config(page_title="Network Analysis App", page_icon="📊", layout="wide")
+    output, error = install_r_packages()
 
     st.write(os.listdir("./r_packages"))
 
