@@ -204,6 +204,11 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             
         with open(output_file_path, 'r') as f:
             summary_text = f.read().strip()
+        
+        download_button = st.sidebar.button("Download ERGM Analysis Results")
+
+        if download_button:
+            st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
         return summary_text
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
