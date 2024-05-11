@@ -23,6 +23,7 @@ def install_r_packages():
     output, error = process.communicate()
     return output, error
 
+@st.cache_data()
 def create_graph(network_df):
     graph = nx.Graph()
     for i in range(len(network_df)):
@@ -30,6 +31,7 @@ def create_graph(network_df):
     
     return graph
 
+@st.cache_data()
 def calculate_network_statistics(graph):
     
     connected_flag = nx.is_connected(graph)
@@ -80,6 +82,7 @@ def calculate_network_statistics(graph):
     }
     return statstics
 
+@st.cache_data()
 def create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate):
     nt = Network()
     nt.from_nx(graph)
@@ -106,6 +109,7 @@ def create_network_visualization(graph, selected_visual_metrics, network_statist
     nt.save_graph(output_dir)
     return output_dir
 
+@st.cache_data()
 def create_community_visualization(graph, network_statistics):
     nt = Network()
     nt.from_nx(graph)

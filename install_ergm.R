@@ -27,5 +27,4 @@ install.packages("magrittr", lib=r_packages_dir, repos="https://cran.r-project.o
 install.packages("./statnet.common_4.6.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 install.packages("./network_1.17.0.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 install.packages("./ergm_4.1.2.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
-install.packages("./xergm_1.8.3.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 cat("\nSuccessfully installed ergm!\n")
