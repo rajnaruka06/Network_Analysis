@@ -1,6 +1,6 @@
 import pandas as pd
 
-ergm_file_path = 'ergm_analysis_results.txt'
+ergm_file_path = 'streamlit_download.txt'
 with open(ergm_file_path, 'r') as f:
     summary_text = f.read().strip()
 
@@ -37,4 +37,4 @@ for idx, line in enumerate(results_lines):
     print(line)
 
 print('#'*50)
-print(summary_df)
+# print(summary_df)
