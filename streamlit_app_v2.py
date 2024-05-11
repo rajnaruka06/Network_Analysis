@@ -288,7 +288,10 @@ def _show_ergm_report(summary_text, edges_only=False):
             try:
                 row.append(float(val))
             except ValueError:
-                pass
+                try:
+                    row.append(float(val[1:]))
+                except ValueError:
+                    pass
             else:
                 continue
         data.append(row)
