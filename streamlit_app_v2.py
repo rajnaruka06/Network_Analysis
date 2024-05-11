@@ -23,7 +23,6 @@ def install_r_packages():
     output, error = process.communicate()
     return output, error
 
-
 def create_graph(network_df):
     graph = nx.Graph()
     for i in range(len(network_df)):
@@ -289,7 +288,7 @@ def _show_ergm_report(summary_text, edges_only=False):
             try:
                 row.append(float(val))
             except ValueError:
-                row.append(float(val[1:]))
+                pass
             else:
                 continue
         data.append(row)
