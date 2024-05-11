@@ -8,5 +8,10 @@ if (!dir.exists(r_packages_dir)) {
 
 cat("Installing ergm package...")
 # install.packages("ergm", lib=r_packages_dir, repos="https://cloud.r-project.org/")
-install.packages("./statnet_2018.10.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
+install.packages("robustbase", lib=r_packages_dir, repos="https://cran.r-project.org/")
+install.packages("coda", lib=r_packages_dir, repos="https://cran.r-project.org/")
+install.packages("lpSolveAPI", lib=r_packages_dir, repos="https://cran.r-project.org/")
+install.packages("statnet.common", lib=r_packages_dir, repos="https://cran.r-project.org/")
+install.packages("statnet.common", lib=r_packages_dir, repos="https://cran.r-project.org/")
+install.packages("./ergm_4.1.2.tar.gz", lib=r_packages_dir, repos=NULL, type="source")
 cat("\nSuccessfully installed ergm!\n")
