@@ -400,7 +400,7 @@ def _show_gof_report(gof_summary_text, edges_only=False):
     st.write("Network Goodness of Fit")
     st.table(network_df)
     
-    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="ergm_gof_results.txt")
+    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="gof_results.txt")
 
 if __name__ == "__main__":
 

@@ -20,4 +20,6 @@ with open('ergm_gof_results.txt', 'r') as f:
     in_degree_df = pd.DataFrame(in_degree_dof_data, columns=headers)
     network_df = pd.DataFrame(network_data, columns=['model statistic'] + headers[1:])
     
-    
+    with open(gof_output_file_path, 'r') as f:
+        gof_summary_text = f.read().strip()
+    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="ergm_gof_results.txt")
