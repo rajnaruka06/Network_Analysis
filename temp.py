@@ -2,6 +2,7 @@ import pandas as pd
 import networkx as nx
 from networkx.algorithms import community
 from openpyxl import load_workbook
+import os
 
 
 def create_graph(network_df):
@@ -66,8 +67,29 @@ if __name__ == '__main__':
     df = pd.read_csv('Freidnships_Data.csv')
     graph = create_graph(df)
     network_statistics = calculate_network_statistics(graph)
-    selected_metrics = ['Number of Nodes', 'Number of Edges', 'Average Degree', 'Density', 'Clustering Coefficient', 'Average Shortest Path Length', 'Diameter', 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity']
-    metrics_dict = {metric: network_statistics.get(metric) for metric in selected_metrics}
-    df = pd.DataFrame.from_dict(metrics_dict, orient='index', columns=['Value'])
-    print(df)
-    # df.to_csv('network_statistics.csv')    
+    node_community_map = {}
+    for community_num, community_list in enumerate(network_statistics['Communities']):
+        for node in community_list:
+            node_community_map[node] = community_num
+    
+
+    df.drop(columns=['target'], inplace=True)
+    df['Community'] = df['source'].map(node_community_map)
+    node_lev_statistics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality", "PageRank", "HITS Hub Scores", "HITS Authority Scores"]
+    for stat in node_lev_statistics:
+        df[stat] = df['source'].map(network_statistics[stat])
+    
+    network_level_statistics = ("Number of Nodes", "Number of Edges", "Average Degree", "Density", "Clustering Coefficient", "Average Shortest Path Length", "Diameter"
+                        , 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity')
+    network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in network_level_statistics})
+
+    df.columns = ['Node'] + df.columns[1:].tolist()
+
+    # if os.path.exists('Network_Analysis.xlsx'):
+    #     os.remove('Network_Analysis.xlsx')
+
+    writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
+    df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
+    if network_statistics_df is not None:
+        network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
+    writer._save()

@@ -361,6 +361,7 @@ if __name__ == "__main__":
             community_viz_path = create_community_visualization(graph, network_statistics)
             html_content = open(community_viz_path, 'r', encoding='utf-8').read()
             st.download_button(label="Download Community Visualization.html", data=html_content, mime="text/html")
+            community_metrics = ("Number of communities", "Community with the largest size", "Community with the smallest size", "Modularity")
             st.components.v1.html(html_content, height=800)
 
         # Network Statistics
@@ -371,13 +372,6 @@ if __name__ == "__main__":
         
         if selected_metrics: 
             st.header("Network Analysis Metrics")
-            metrics_dict = {metric: network_statistics.get(metric) for metric in selected_metrics}
-            df = pd.DataFrame.from_dict(metrics_dict, orient='index', columns=['Value'])
-            df.to_csv('network_statistics.csv')
-            with open('network_statistics.csv', 'rb') as f:
-                csv_content = f.read()
-            st.download_button(label="Download Network Statistics.csv", data=csv_content, mime="text/csv")
-            
         for metric in selected_metrics:
             value = network_statistics.get(metric)
             if isinstance(value, (int, float)):
@@ -415,10 +409,34 @@ if __name__ == "__main__":
                     st.error("An error occurred during ALAAM analysis")
 
 
-        # # Download report
+        ## Download report
         st.sidebar.title("Download Report")
         report_button = st.sidebar.button("Download Report")
         if report_button:
-            st.write("Work in Progress...")
+            report_df = network_df.copy()
+            report_df.drop(columns=['target'], inplace=True)
+            
+            node_community_map = {}
+            for community_num, community_list in enumerate(network_statistics['Communities']):
+                for node in community_list:
+                    node_community_map[node] = community_num
+
+            report_df['Community'] = report_df['source'].map(node_community_map)
+            node_lev_statistics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality", "PageRank", "HITS Hub Scores", "HITS Authority Scores"]
+            for stat in node_lev_statistics:
+                report_df[stat] = report_df['source'].map(network_statistics[stat])
+            
+            report_df.columns = ['Node'] + report_df.columns[1:].tolist()
+
+            writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
+            report_df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
+
+            network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in metrics_list})
+            if network_statistics_df is not None:
+                network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
+            writer._save()
+
+            st.download_button(label="Download Network Analysis.xlsx", data='Network_Analysis.xlsx', mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            
     else:
         st.warning("Please Upload a File")
