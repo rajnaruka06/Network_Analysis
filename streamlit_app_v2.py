@@ -488,7 +488,7 @@ if __name__ == "__main__":
             if gof_summary_text is not None:
                 show_dof = st.checkbox("Show Goodness Of Fit Results")
                 if show_dof:
-                    out_degree_df, in_degree_df, network_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
+                    out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
             else:
                 st.error("An error occurred during ERGM analysis")
         
@@ -505,7 +505,7 @@ if __name__ == "__main__":
                 if gof_summary_text is not None:
                     show_dof = st.checkbox("Show Goodness Of Fit Results")
                     if show_dof:
-                        out_degree_df, in_degree_df, network_df = _show_gof_report(gof_summary_text)
+                        out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
                 else:
                     st.error("An error occurred during ALAAM analysis")
 
@@ -534,15 +534,16 @@ if __name__ == "__main__":
         if network_statistics_df is not None:
             network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
         
-        summary_df = pd.DataFrame.from_dict({'Summary': summary_text[summary_text.find('Maximum'):]}, orient='index')
-        summary_df.reset_index(inplace=True)
-        if summary_df is not None:
-            summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
+        if show_dof:
+            summary_df = pd.DataFrame.from_dict({'Summary': summary_text[summary_text.find('Maximum'):]}, orient='index')
+            summary_df.reset_index(inplace=True)
+            if summary_df is not None:
+                summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
 
-        gof_dfs = {'Out Degree': out_degree_df, 'In Degree': in_degree_df, 'Network': network_df}
-        for key, df in gof_dfs.items():
-            if df is not None:
-                df.to_excel(writer, sheet_name=f'{key} GOF', index=False)
+            gof_dfs = {'Out Degree': out_degree_df, 'In Degree': in_degree_df, 'Network': network_dof_df}
+            for key, df in gof_dfs.items():
+                if df is not None:
+                    df.to_excel(writer, sheet_name=f'{key} GOF', index=False)
 
         writer._save()
         with open('Network_Analysis.xlsx', 'rb') as f:
