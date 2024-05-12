@@ -145,7 +145,7 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt", gof_output_file_path = "ergm_gof_results.txt"):
     
     if edges_only:
 
@@ -166,6 +166,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             ergm_model <- ergm::ergm(as.formula(formula))
             summary_ergm <- summary(ergm_model)
             writeLines(capture.output(summary_ergm), "{output_file_path}")
+
+            gof_results <- gof(ergm_model, GOF=~odegree+idegree)
+            writeLines(capture.output(gof_results), "{gof_output_file_path}")
 
             ''')
     else:
@@ -193,12 +196,19 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             summary_ergm <- summary(ergm_model)
                 
             writeLines(capture.output(summary_ergm), "{output_file_path}")
+
+            gof_results <- gof(ergm_model, GOF=~odegree+idegree)
+            writeLines(capture.output(gof_results), "{gof_output_file_path}")
             ''')
 
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
     st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
+
+    with open(gof_output_file_path, 'r') as f:
+        gof_summary_text = f.read().strip()
+    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="ergm_gof_results.txt")
 
     return summary_text
 
