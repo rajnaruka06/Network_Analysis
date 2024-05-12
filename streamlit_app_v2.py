@@ -229,7 +229,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
             library(ergm, lib.loc="./r_packages")
              
             net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
-            formula <- paste("net ~ edges + nodecov('", {selected_attribute}, "')", sep="")
+            formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "', sep="")
             
             alaam_model <- ergm::ergm(as.formula(formula))
             summary_alaam <- summary(ergm_model)
