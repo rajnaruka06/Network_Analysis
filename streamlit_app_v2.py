@@ -122,17 +122,25 @@ def create_community_visualization(graph, network_statistics):
     )
     pastel_colors = pastel_cmap(np.linspace(0, 1, number_of_communities))
     node_comunity_color_map = dict()
+    node_community_map = {}
     for idx, community in enumerate(communities):
         color = mcolors.to_hex(pastel_colors[idx])
         for node in community:
             node_comunity_color_map[node] = color
+            node_community_map[node] = idx
     
+    annotate_nodes = st.checkbox("Annotate Nodes with Community Number")
+
     for node, coords in pos.items():
         for node_dict in nt.nodes:
             if node_dict['id'] == node:
                 node_dict['x'] = coords[0]
                 node_dict['y'] = coords[1]
                 node_dict['color'] = node_comunity_color_map[node]
+                if annotate_nodes:
+                    node_label = f"ID: {node}"
+                    node_label += f", Comm: {node_community_map[node]}"
+                    node_dict['label'] = node_label
                 break
     
     output_dir = "./app_community_layout.html"
@@ -431,8 +439,7 @@ if __name__ == "__main__":
 
         writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
         report_df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
-
-        network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in metrics_list})
+        network_statistics_df = pd.DataFrame.from_dict([{stat: [network_statistics[stat]] for stat in metrics_list}], orient='index', columns=selected_metrics)
         if network_statistics_df is not None:
             network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
         writer._save()
