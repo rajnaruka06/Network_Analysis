@@ -435,11 +435,11 @@ if __name__ == "__main__":
         network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in metrics_list})
         if network_statistics_df is not None:
             network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
-        bytes_buffer = io.BytesIO()
         writer._save()
-        bytes_buffer.seek(0)
-        # st.sidebar.download_button(label="Download Report: Analysis-xlsx", data='Network_Analysis.xlsx', mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        st.sidebar.download_button(label="Download Report: Analysis-xlsx", data=bytes_buffer, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        with open('Network_Analysis.xlsx', 'rb') as f:
+            file_content = f.read()
+            st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx")
+        # st.sidebar.download_button(label="Download Analysis Report", data='Network_Analysis.xlsx', mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx")
             
     else:
         st.warning("Please Upload a File")
