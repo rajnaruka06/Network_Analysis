@@ -83,11 +83,14 @@ if __name__ == '__main__':
         report_df[stat] = report_df['source'].map(network_statistics[stat])
     
     report_df.columns = ['Node'] + report_df.columns[1:].tolist()
+    report_df.reset_index(inplace=True)
 
     writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
     report_df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
 
-    network_statistics_df = pd.DataFrame.from_dict({stat: [network_statistics[stat]] for stat in metrics_list}, orient='index', columns=['Metric', 'Value'])
+    network_statistics_df = pd.DataFrame.from_dict({stat: [network_statistics[stat]] for stat in metrics_list}, orient='index')
+    network_statistics_df.reset_index(inplace=True)
+    network_statistics_df.columns = ['Metric', 'Value']
     if network_statistics_df is not None:
         network_statistics_df.to_excel(writer, sheet_name='Network Statistics')
     writer._save()
