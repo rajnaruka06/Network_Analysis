@@ -235,17 +235,18 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
 
     if edges_only:
         st.error("ERGM Node Covariate Analysis is not supported for edges only network")
+        return None, None
     
     ## Node Covariate Model for edges and attribute
     else:
         if attribute_df[selected_attribute].isna().any():
             st.error("ERGM Node Covariate Analysis is not supported for missing values in the selected attribute")
-            return None
+            return None, None
         try:
             attribute_df[selected_attribute] = attribute_df[selected_attribute].astype(int)
         except:
             st.error("ERGM Node Covariate Analysis is only supported for numeric attributes")
-            return None
+            return None, None
         
         attribute_df = attribute_df[['NodeID', selected_attribute]]
         attribute_df.dropna(subset=[selected_attribute], inplace=True)
@@ -502,7 +503,7 @@ if __name__ == "__main__":
         ## Statistical Modeling
         st.sidebar.title("Select Statistical Model")
         # selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
-        selected_model = st.sidebar.selectbox("Choose Model", ("bernoulli", "node_match", "node_covariate"))
+        selected_model = st.sidebar.radio("Choose Model (ERGMs)", ("bernoulli", "node_match", "node_covariate"))
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
 
         st.header(f"{selected_model} ERGM Analysis Summary")
