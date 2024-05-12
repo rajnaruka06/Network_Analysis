@@ -213,7 +213,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
     
-    st.writetable(attribute_df)
+    # st.writetable(attribute_df)
     st.write(attribute_df[selected_attribute].dtype)
 
     if edges_only:
