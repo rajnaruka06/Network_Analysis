@@ -559,7 +559,7 @@ if __name__ == "__main__":
         The Excel file should contain two sheets:
 
         1. Attributes Sheet:
-            - The first column must be labeled 'NodeID' and contain unique identifiers for each node.
+            - The first column must be the NodeID - should contain unique identifiers for each node.
             - Subsequent columns can contain various attributes for each node.
 
         2. Network Sheet (Same format as CSV):
