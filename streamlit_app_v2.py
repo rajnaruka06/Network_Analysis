@@ -149,7 +149,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         ro.globalenv['df'] = r_net_data
         
         ro.r(f'''
-            # install.packages("ergm", lib="{r_lib_path}")
             library(network, lib.loc="./r_packages")
             library(ergm, lib.loc="./r_packages")
             df$Source <- as.character(df$source)
@@ -181,7 +180,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         ro.globalenv['df'] = r_net_data
         ro.globalenv['selected_attribute'] = selected_attribute
         ro.r(f'''
-                # install.packages("ergm", lib="{r_lib_path}")
             library(network, lib.loc="./r_packages")
             library(ergm, lib.loc="./r_packages")
 
