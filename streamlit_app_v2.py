@@ -531,6 +531,12 @@ if __name__ == "__main__":
         network_statistics_df.columns = ['Metric', 'Value']
         if network_statistics_df is not None:
             network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
+        
+        summary_df = pd.DataFrame.from_dict({'Summary': summary_text})
+        summary_df.reset_index(inplace=True)
+        if summary_df is not None:
+            summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
+
         writer._save()
         with open('Network_Analysis.xlsx', 'rb') as f:
             file_content = f.read()
