@@ -215,6 +215,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
         except:
             st.error("ALAAM Analysis is only supported for numeric attributes")
             return None
+        
         attribute_df = attribute_df[['NodeID', selected_attribute]]
         attribute_df.dropna(subset=[selected_attribute], inplace=True)
 
@@ -232,7 +233,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
             library(ergm, lib.loc="./r_packages")
 
             net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
-            formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "')", sep="")
+            formula <- paste("net ~ edges + nodecov('", "{selected_attribute}", "')", sep="")
             
             alaam_model <- ergm::ergm(as.formula(formula))
             summary_alaam <- summary(alaam_model)
