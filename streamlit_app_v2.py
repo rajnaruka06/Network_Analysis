@@ -144,9 +144,10 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-def perform_ergm_analysis(network_df, attribute_df, selected_attribute, model='bernoulli', output_file_path="ergm_analysis_results.txt", gof_output_file_path = "ergm_gof_results.txt"):
+def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt", gof_output_file_path = "ergm_gof_results.txt"):
+    
     ## Bernoulli Model for edges only
-    if model == 'bernoulli':
+    if edges_only:
 
         pandas2ri.activate()
         with localconverter(ro.default_converter + pandas2ri.converter):
@@ -172,7 +173,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, model='b
             ''')
     
     ## Node Match Model for edges and attribute
-    elif model == 'Node Match':
+    else:
         
         attribute_df = attribute_df[['NodeID', selected_attribute]]
         attribute_df.dropna(subset=[selected_attribute], inplace=True)
@@ -201,8 +202,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, model='b
             gof_results <- gof(ergm_model, GOF=~odegree+idegree)
             writeLines(capture.output(gof_results), "{gof_output_file_path}")
             ''')
-    else:
-        perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path, gof_output_file_path)
+
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
@@ -482,46 +482,42 @@ if __name__ == "__main__":
         
         ## Statistical Modeling
         st.sidebar.title("Select Statistical Model")
-        edges_only=uploaded_file.name.endswith(".csv")
-        if edges_only:
-            selected_model = st.sidebar.radio("Choose ERGM Model", ("bernoulli", ))
-            st.sidebar.write("Bernoulli Model is the only supported model for edges only network.")
-        else:
-            selected_model = st.sidebar.radio("Choose Model", ("bernoulli", "Node Match", "Node Cov"))
-        
+        selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
-        
-        st.header("Analysis Summary")
-        if selected_model in ("bernoulli", "Node Match"):
-            
+        if selected_model == "ERGM":
+            st.header("ERGM Analysis Summary")
+            edges_only=uploaded_file.name.endswith(".csv")
             ergm_file_path = "ergm_analysis_results.txt"
             gof_file_path = "ergm_gof_results.txt"
-            with st.spinner(f"Performing {selected_model} ERGM Analysis..."):
-                summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, model=selected_model, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
+            with st.spinner("Performing ERGM Analysis..."):
+                summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
                         
             ## Manual labour to display ERGM summary
             if summary_text is not None:
                 _show_ergm_report(summary_text, edges_only = edges_only)
             if gof_summary_text is not None:
-                show_dof = st.checkbox("Show Goodness Of Fit Results")
-                if show_dof:
+                show_gof = st.checkbox("Show Goodness Of Fit Results")
+                if show_gof:
                     out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
             else:
-                st.error("An error occurred during analysis")
+                st.error("An error occurred during ERGM analysis")
         
-        else:
-            alaam_file_path = "alaam_analysis_results.txt"
-            gof_file_path = "alaam_gof_results.txt"
-            with st.spinner(f"Performing {selected_model} ERGM Analysis..."):
-                summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, model=selected_model, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
-            if summary_text is not None:
-                _show_alaam_report(summary_text)
-            if gof_summary_text is not None:
-                show_dof = st.checkbox("Show Goodness Of Fit Results")
-                if show_dof:
-                    out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
+        elif selected_model == "ALAAM":
+            st.header("ALAAM Analysis")
+            if uploaded_file.name.endswith(".csv"):
+                st.warning("ALAAM Analysis is not supported for edges only network")    
             else:
-                st.error("An error occurred during analysis")
+                alaam_file_path = "alaam_analysis_results.txt"
+                gof_file_path = "alaam_gof_results.txt"
+                summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
+                if summary_text is not None:
+                    _show_alaam_report(summary_text)
+                if gof_summary_text is not None:
+                    show_gof = st.checkbox("Show Goodness Of Fit Results")
+                    if show_gof:
+                        out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
+                else:
+                    st.error("An error occurred during ALAAM analysis")
 
 
         ## Download report
@@ -553,7 +549,7 @@ if __name__ == "__main__":
         if summary_df is not None:
             summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
 
-        if show_dof:
+        if show_gof:
             gof_dfs = {'Out Degree': out_degree_df, 'In Degree': in_degree_df, 'Network': network_dof_df}
             for key, df in gof_dfs.items():
                 if df is not None:
