@@ -381,8 +381,13 @@ def _show_gof_report(gof_summary_text, edges_only=False):
     lines = gof_summary_text.split("\n")
     headers = lines[2].split()
     headers = ['degree'] + headers[:4] + headers[5:]
-    out_degree_dof_data = lines[3:27]
-    in_degree_dof_data = lines[21:51]
+    for idx, line in enumerate(lines):
+        if line.startswith("Goodness-of-fit for in-degree"):
+            odegree_end = idx - 1
+        elif line.startswith("Goodness-of-fit for model statistics"):
+            indegree_end = idx - 1
+    out_degree_dof_data = lines[3:odegree_end]
+    in_degree_dof_data = lines[odegree_end + 4:indegree_end]
     network_data = lines[-2:] if not edges_only else lines[-1:]
     
     out_degree_dof_data = [line.split() for line in out_degree_dof_data]
