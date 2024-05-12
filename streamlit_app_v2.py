@@ -235,9 +235,9 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
             formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "')", sep="")
             
             alaam_model <- ergm::ergm(as.formula(formula))
-            summary_alaam <- summary(ergm_model)
+            summary_alaam <- summary(alaam_model)
                 
-            writeLines(capture.output(summary_ergm), "{output_file_path}")
+            writeLines(capture.output(summary_alaam), "{output_file_path}")
             ''')
 
         
