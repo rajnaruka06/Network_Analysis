@@ -372,6 +372,15 @@ if __name__ == "__main__":
         
         if selected_metrics: 
             st.header("Network Analysis Metrics")
+            metrics_dict = {metric: network_statistics.get(metric) for metric in selected_metrics}
+            df = pd.DataFrame.from_dict([metrics_dict], orient='index', columns=selected_metrics)
+            csv_content = df.to_csv(index=False).encode('utf-8')
+            with open('network_metrics.csv', 'wb') as f:
+                f.write(csv_content)
+            with open('network_metrics.csv', 'rb') as f:
+                csv_content = f.read()
+            st.download_button(label="Download Network Metrics.csv", data=csv_content, mime="text/csv")
+            
         for metric in selected_metrics:
             value = network_statistics.get(metric)
             if isinstance(value, (int, float)):
