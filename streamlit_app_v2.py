@@ -382,6 +382,7 @@ def _show_alaam_report(summary_text, edges_only=False):
 
 def _show_gof_report(gof_summary_text, edges_only=False):
     st.header("Goodness of Fit Results")
+    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="gof_results.txt")
 
     lines = gof_summary_text.split("\n")
     headers = lines[2].split()
