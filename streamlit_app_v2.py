@@ -360,7 +360,9 @@ if __name__ == "__main__":
             st.header("Community Visualization")
             st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
             community_viz_path = create_community_visualization(graph, network_statistics)
-            st.components.v1.html(open(community_viz_path, 'r', encoding='utf-8').read(), height=800)
+            html_content = open(community_viz_path, 'r', encoding='utf-8').read()
+            st.download_button(label="Download Community Visualization.html", data=html_content, mime="text/html")
+            st.components.v1.html(html_content, height=800)
 
         # Network Statistics
         st.sidebar.title("Select Network Statistics")
