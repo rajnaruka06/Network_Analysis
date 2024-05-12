@@ -412,7 +412,8 @@ if __name__ == "__main__":
 
     ## File Upload FUnctionality
     st.sidebar.title("Upload File")
-    uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=["csv", "xlsx"])
+    supported_formats = ["csv", "xlsx"]
+    uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=supported_formats)
 
     if uploaded_file is not None:
         with st.spinner("Uploading file..."):
@@ -539,3 +540,31 @@ if __name__ == "__main__":
             
     else:
         st.warning("Please Upload a File")
+        st.header("Instructions for file format")
+
+        st.write(f"**Note:** The app only supports {', '.join(supported_formats)} files.")
+
+        st.subheader("CSV File Format:")
+        csv_description = """
+        The CSV file should represent a directed network (graph).
+
+        - It must have two columns:
+            - Source Node: The starting node for each connection.
+            - Target Node: The ending node for each connection.
+        """
+        st.write(csv_description)
+
+        st.subheader("Excel File Format:")
+        excel_description = """
+        The Excel file should contain two sheets:
+
+        1. Attributes Sheet:
+            - The first column must be labeled 'NodeID' and contain unique identifiers for each node.
+            - Subsequent columns can contain various attributes for each node.
+
+        2. Network Sheet (Same format as CSV):
+            - It must have two columns:
+                - Source Node: The starting node for each connection.
+                - Target Node: The ending node for each connection.
+        """
+        st.write(excel_description)
