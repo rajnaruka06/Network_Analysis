@@ -139,74 +139,71 @@ def create_community_visualization(graph, network_statistics):
     return output_dir
 
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt"):
-    with tempfile.TemporaryDirectory() as temp_dir:
+    
+    if edges_only:
+
+        pandas2ri.activate()
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            r_net_data = ro.conversion.py2rpy(network_df)
+
+        ro.globalenv['df'] = r_net_data
         
-        r_lib_path = temp_dir
+        ro.r(f'''
+            # install.packages("ergm", lib="{r_lib_path}")
+            library(network, lib.loc="./r_packages")
+            library(ergm, lib.loc="./r_packages")
+            df$Source <- as.character(df$source)
+            df$Target <- as.character(df$target)
+            net <- network::network(df, directed = TRUE, loops = FALSE)
 
-        if edges_only:
+            # ERGM formula for edges only
+            formula <- "net ~ edges"
+            ergm_model <- ergm::ergm(as.formula(formula))
+            summary_ergm <- summary(ergm_model)
+            writeLines(capture.output(summary_ergm), "{output_file_path}")
 
-            pandas2ri.activate()
-            with localconverter(ro.default_converter + pandas2ri.converter):
-                r_net_data = ro.conversion.py2rpy(network_df)
+            ''')
+    else:
+        
+        attribute_df = attribute_df[['NodeID', selected_attribute]]
+        attribute_df.dropna(subset=[selected_attribute], inplace=True)
 
-            ro.globalenv['df'] = r_net_data
-            
-            ro.r(f'''
+        net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
+        # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
+        # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
+        # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
+        net_data.drop(columns=['NodeID'], inplace=True)
+        
+        pandas2ri.activate()
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            r_net_data = ro.conversion.py2rpy(net_data)
+
+        ro.globalenv['df'] = r_net_data
+        ro.globalenv['selected_attribute'] = selected_attribute
+        ro.r(f'''
                 # install.packages("ergm", lib="{r_lib_path}")
-                library(network, lib.loc="./r_packages")
-                library(ergm, lib.loc="./r_packages")
-                df$Source <- as.character(df$source)
-                df$Target <- as.character(df$target)
-                net <- network::network(df, directed = TRUE, loops = FALSE)
+            library(network, lib.loc="./r_packages")
+            library(ergm, lib.loc="./r_packages")
 
-                # ERGM formula for edges only
-                formula <- "net ~ edges"
-                ergm_model <- ergm::ergm(as.formula(formula))
-                summary_ergm <- summary(ergm_model)
-                writeLines(capture.output(summary_ergm), "{output_file_path}")
+            # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
+            # formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
 
-                ''')
-        else:
+            net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
+            formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "', diff = FALSE)", sep="")
+
             
-            attribute_df = attribute_df[['NodeID', selected_attribute]]
-            attribute_df.dropna(subset=[selected_attribute], inplace=True)
-
-            net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
-            # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
-            # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
-            # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
-            net_data.drop(columns=['NodeID'], inplace=True)
-            
-            pandas2ri.activate()
-            with localconverter(ro.default_converter + pandas2ri.converter):
-                r_net_data = ro.conversion.py2rpy(net_data)
-
-            ro.globalenv['df'] = r_net_data
-            ro.globalenv['selected_attribute'] = selected_attribute
-            ro.r(f'''
-                    # install.packages("ergm", lib="{r_lib_path}")
-                library(network, lib.loc="./r_packages")
-                library(ergm, lib.loc="./r_packages")
-
-                # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
-                # formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
-
-                net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
-                formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "', diff = FALSE)", sep="")
-
+            ergm_model <- ergm::ergm(as.formula(formula))
+            summary_ergm <- summary(ergm_model)
                 
-                ergm_model <- ergm::ergm(as.formula(formula))
-                summary_ergm <- summary(ergm_model)
-                    
-                writeLines(capture.output(summary_ergm), "{output_file_path}")
-                ''')
+            writeLines(capture.output(summary_ergm), "{output_file_path}")
+            ''')
 
-            
-        with open(output_file_path, 'r') as f:
-            summary_text = f.read().strip()
-        st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
+        
+    with open(output_file_path, 'r') as f:
+        summary_text = f.read().strip()
+    st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
 
-        return summary_text
+    return summary_text
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
     
