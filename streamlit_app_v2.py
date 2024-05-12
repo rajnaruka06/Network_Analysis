@@ -12,7 +12,6 @@ import subprocess
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
-import os
 
 
 @st.cache_data()
@@ -373,10 +372,8 @@ if __name__ == "__main__":
         if selected_metrics: 
             st.header("Network Analysis Metrics")
             metrics_dict = {metric: network_statistics.get(metric) for metric in selected_metrics}
-            df = pd.DataFrame.from_dict([metrics_dict], orient='index', columns=selected_metrics)
-            csv_content = df.to_csv(index=False).encode('utf-8')
-            with open('network_metrics.csv', 'wb') as f:
-                f.write(csv_content)
+            df = pd.DataFrame.from_dict(metrics_dict, orient='index', columns=['Value'])
+            df.to_csv('network_statistics.csv')
             with open('network_metrics.csv', 'rb') as f:
                 csv_content = f.read()
             st.download_button(label="Download Network Metrics.csv", data=csv_content, mime="text/csv")
