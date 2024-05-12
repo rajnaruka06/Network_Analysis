@@ -400,7 +400,7 @@ def _show_gof_report(gof_summary_text, edges_only=False):
     in_degree_dof_data = [line.split() for line in in_degree_dof_data]
     network_data = [line.split() for line in network_data]
     if edges_only: 
-        network_data = ['edges'] + network_data
+        network_data[0] = ['edges'] + network_data[0]
     
     out_degree_df = pd.DataFrame(out_degree_dof_data, columns=headers)
     in_degree_df = pd.DataFrame(in_degree_dof_data, columns=headers)
