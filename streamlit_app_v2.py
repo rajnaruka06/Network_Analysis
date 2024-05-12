@@ -13,6 +13,10 @@ import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 
+## Humo mat sikhaao yr
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 @st.cache_data()
 def install_r_packages():
@@ -212,6 +216,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
     return summary_text, gof_summary_text
 
+@st.cache_data()
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
 
     if edges_only:
