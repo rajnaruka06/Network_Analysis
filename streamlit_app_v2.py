@@ -349,7 +349,10 @@ if __name__ == "__main__":
         st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
         annotate = st.checkbox("Annotate Nodes with Visual Metric Value")
         viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate)
-        st.components.v1.html(open(viz_path, 'r', encoding='utf-8').read(), height=600)
+        with open(viz_path, 'r', encoding='utf-8') as f:
+            html_content = open(viz_path, 'r', encoding='utf-8').read()
+            st.download_button(label="Download Network Visualization.html", data=html_content, mime="text/html")
+            st.components.v1.html(html_content, height=600)
 
         # Community Visualization
         show_community_visualization = st.checkbox("Show Community Visualization")
