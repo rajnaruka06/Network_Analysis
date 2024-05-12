@@ -144,6 +144,24 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
+def perform_analysis(network_df, attribute_df, selected_attribute, edges_only, output_file_path, gof_output_file_path, model_type):
+    if model_type == 'bernoulli':
+        summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only, output_file_path, gof_output_file_path)
+    elif model_type == 'node_match':
+        if edges_only:
+            st.error("ERGM Node Match is not Supported for edges only network")
+            return None, None
+        summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only, output_file_path, gof_output_file_path)
+    elif model_type == 'node_covariate':
+        if edges_only:
+            st.error("ERGM Node Covariate Analysis is not supported for edges only network")
+            return None, None
+        summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only, output_file_path, gof_output_file_path)
+    else:
+        st.error("Invalid Model Type")
+        return None, None
+    return summary_text, gof_summary_text
+
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt", gof_output_file_path = "ergm_gof_results.txt"):
     
     ## Bernoulli Model for edges only
@@ -216,17 +234,17 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt", gof_output_file_path = "alaam_gof_results.txt"):
 
     if edges_only:
-        st.error("ALAAM Analysis is not supported for edges only network")
+        st.error("ERGM Node Covariate Analysis is not supported for edges only network")
     
     ## Node Covariate Model for edges and attribute
     else:
         if attribute_df[selected_attribute].isna().any():
-            st.error("ALAAM Analysis is not supported for missing values in the selected attribute")
+            st.error("ERGM Node Covariate Analysis is not supported for missing values in the selected attribute")
             return None
         try:
             attribute_df[selected_attribute] = attribute_df[selected_attribute].astype(int)
         except:
-            st.error("ALAAM Analysis is only supported for numeric attributes")
+            st.error("ERGM Node Covariate Analysis is only supported for numeric attributes")
             return None
         
         attribute_df = attribute_df[['NodeID', selected_attribute]]
@@ -483,42 +501,67 @@ if __name__ == "__main__":
         
         ## Statistical Modeling
         st.sidebar.title("Select Statistical Model")
-        selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
+        # selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
+        selected_model = st.sidebar.selectbox("Choose Model", ("bernoulli", "node_match", "node_covariate"))
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
-        if selected_model == "ERGM":
-            st.header("ERGM Analysis Summary")
-            edges_only=uploaded_file.name.endswith(".csv")
-            ergm_file_path = "ergm_analysis_results.txt"
-            gof_file_path = "ergm_gof_results.txt"
-            with st.spinner("Performing ERGM Analysis..."):
-                summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
-                        
-            ## Manual labour to display ERGM summary
-            if summary_text is not None:
-                _show_ergm_report(summary_text, edges_only = edges_only)
-            if gof_summary_text is not None:
-                show_gof = st.checkbox("Show Goodness Of Fit Results")
-                if show_gof:
-                    out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
-            else:
-                st.error("An error occurred during ERGM analysis")
+
+        st.header(f"{selected_model} ERGM Analysis Summary")
+        edges_only=uploaded_file.name.endswith(".csv")
+        file_path = "analysis_result.txt"
+        gof_file_path = "gof_results.txt"
+        with st.spinner(f"Performing {selected_model} ERGM Analysis..."):
+            summary_text, gof_summary_text = perform_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only, output_file_path=file_path, gof_output_file_path=gof_file_path, model_type=selected_model)
         
-        elif selected_model == "ALAAM":
-            st.header("ALAAM Analysis")
-            if uploaded_file.name.endswith(".csv"):
-                st.warning("ALAAM Analysis is not supported for edges only network")    
-            else:
-                alaam_file_path = "alaam_analysis_results.txt"
-                gof_file_path = "alaam_gof_results.txt"
-                summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
-                if summary_text is not None:
-                    _show_alaam_report(summary_text)
-                if gof_summary_text is not None:
-                    show_gof = st.checkbox("Show Goodness Of Fit Results")
-                    if show_gof:
-                        out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
-                else:
-                    st.error("An error occurred during ALAAM analysis")
+        ## Manual labour to display ERGM summary
+        if summary_text is not None:
+            if selected_model in ['bernoulli', 'node_match']:
+                _show_ergm_report(summary_text, edges_only = edges_only)
+            elif selected_model == 'node_covariate':
+                _show_alaam_report(summary_text, edges_only = edges_only)
+        else:
+            st.error("An error occurred during analysis")
+        
+        show_gof = False
+        if gof_summary_text is not None:
+            show_gof = st.checkbox("Show Goodness Of Fit Results")
+            if show_gof:
+                out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
+
+        # if selected_model == "ERGM":
+        #     st.header("ERGM Analysis Summary")
+        #     edges_only=uploaded_file.name.endswith(".csv")
+        #     ergm_file_path = "ergm_analysis_results.txt"
+        #     gof_file_path = "ergm_gof_results.txt"
+        #     with st.spinner("Performing ERGM Analysis..."):
+        #         summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
+                        
+        #     ## Manual labour to display ERGM summary
+        #     if summary_text is not None:
+        #         _show_ergm_report(summary_text, edges_only = edges_only)
+        #     if gof_summary_text is not None:
+        #         show_gof = st.checkbox("Show Goodness Of Fit Results")
+        #         if show_gof:
+        #             out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
+        #     else:
+        #         st.error("An error occurred during ERGM analysis")
+        
+        # elif selected_model == "ALAAM":
+        #     st.header("ALAAM Analysis")
+        #     st.warning("This is ERGM + Node Covariate Model.")
+        #     if uploaded_file.name.endswith(".csv"):
+        #         st.warning("ALAAM Analysis is not supported for edges only network")    
+        #     else:
+        #         alaam_file_path = "alaam_analysis_results.txt"
+        #         gof_file_path = "alaam_gof_results.txt"
+        #         summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
+        #         if summary_text is not None:
+        #             _show_alaam_report(summary_text)
+        #         if gof_summary_text is not None:
+        #             show_gof = st.checkbox("Show Goodness Of Fit Results")
+        #             if show_gof:
+        #                 out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
+        #         else:
+        #             st.error("An error occurred during ALAAM analysis")
 
 
         ## Download report
@@ -545,10 +588,11 @@ if __name__ == "__main__":
         if network_statistics_df is not None:
             network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
         
-        summary_df = pd.DataFrame.from_dict({'Summary': summary_text[summary_text.find('Maximum'):]}, orient='index')
-        summary_df.reset_index(inplace=True)
-        if summary_df is not None:
-            summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
+        if summary_text is not None:
+            summary_df = pd.DataFrame.from_dict({'Summary': summary_text[summary_text.find('Maximum'):]}, orient='index')
+            summary_df.reset_index(inplace=True)
+            if summary_df is not None:
+                summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
 
         if show_gof:
             gof_dfs = {'Out Degree': out_degree_df, 'In Degree': in_degree_df, 'Network': network_dof_df}
