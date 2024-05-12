@@ -66,30 +66,28 @@ def calculate_network_statistics(graph):
 if __name__ == '__main__':
     df = pd.read_csv('Freidnships_Data.csv')
     graph = create_graph(df)
+    metrics_list = ("Number of Nodes", "Number of Edges", "Average Degree", "Density", "Clustering Coefficient", "Average Shortest Path Length", "Diameter"
+                        , 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity')
     network_statistics = calculate_network_statistics(graph)
+    report_df = df.copy()
+    report_df.drop(columns=['target'], inplace=True)
+    
     node_community_map = {}
     for community_num, community_list in enumerate(network_statistics['Communities']):
         for node in community_list:
             node_community_map[node] = community_num
-    
 
-    df.drop(columns=['target'], inplace=True)
-    df['Community'] = df['source'].map(node_community_map)
+    report_df['Community'] = report_df['source'].map(node_community_map)
     node_lev_statistics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality", "PageRank", "HITS Hub Scores", "HITS Authority Scores"]
     for stat in node_lev_statistics:
-        df[stat] = df['source'].map(network_statistics[stat])
+        report_df[stat] = report_df['source'].map(network_statistics[stat])
     
-    network_level_statistics = ("Number of Nodes", "Number of Edges", "Average Degree", "Density", "Clustering Coefficient", "Average Shortest Path Length", "Diameter"
-                        , 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity')
-    network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in network_level_statistics})
-
-    df.columns = ['Node'] + df.columns[1:].tolist()
-
-    # if os.path.exists('Network_Analysis.xlsx'):
-    #     os.remove('Network_Analysis.xlsx')
+    report_df.columns = ['Node'] + report_df.columns[1:].tolist()
 
     writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
+    report_df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
+
+    network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in metrics_list})
     if network_statistics_df is not None:
         network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
     writer._save()
