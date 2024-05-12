@@ -374,9 +374,9 @@ if __name__ == "__main__":
             metrics_dict = {metric: network_statistics.get(metric) for metric in selected_metrics}
             df = pd.DataFrame.from_dict(metrics_dict, orient='index', columns=['Value'])
             df.to_csv('network_statistics.csv')
-            with open('network_metrics.csv', 'rb') as f:
+            with open('network_statistics.csv', 'rb') as f:
                 csv_content = f.read()
-            st.download_button(label="Download Network Metrics.csv", data=csv_content, mime="text/csv")
+            st.download_button(label="Download Network Statistics.csv", data=csv_content, mime="text/csv")
             
         for metric in selected_metrics:
             value = network_statistics.get(metric)
