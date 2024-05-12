@@ -6,7 +6,6 @@ from networkx.algorithms import community
 import matplotlib.colors as mcolors
 import numpy as np
 from openpyxl import load_workbook
-import tempfile
 import subprocess
 
 
@@ -163,7 +162,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             df$Target <- as.character(df$target)
             net <- network::network(df, directed = TRUE, loops = FALSE)
 
-            # ERGM formula for edges only
             formula <- "net ~ edges"
             ergm_model <- ergm::ergm(as.formula(formula))
             summary_ergm <- summary(ergm_model)
@@ -176,9 +174,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         attribute_df.dropna(subset=[selected_attribute], inplace=True)
 
         net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
-        # net_data = pd.merge(net_data, attribute_df, left_on='target', right_on='NodeID', how='left', suffixes=('', '_target'))
-        # net_data.dropna(subset=[selected_attribute, selected_attribute + '_target'], inplace=True)
-        # net_data.drop(columns=['NodeID', 'NodeID_target'], inplace=True)
         net_data.drop(columns=['NodeID'], inplace=True)
         
         pandas2ri.activate()
@@ -191,13 +186,9 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
             library(network, lib.loc="./r_packages")
             library(ergm, lib.loc="./r_packages")
 
-            # net <- network::network(df, vertex.attr = list(Attendance = df$Attendance), directed = TRUE, loops = FALSE)
-            # formula <- paste("net ~ edges + nodematch('", "Attendance", "', diff = FALSE)", sep="")
-
             net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
             formula <- paste("net ~ edges + nodematch('", "{selected_attribute}", "', diff = FALSE)", sep="")
 
-            
             ergm_model <- ergm::ergm(as.formula(formula))
             summary_ergm <- summary(ergm_model)
                 
@@ -212,9 +203,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
     return summary_text
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
-    
-    # st.writetable(attribute_df)
-    st.write(attribute_df[selected_attribute].dtype)
 
     if edges_only:
         st.error("ALAAM Analysis is not supported for edges only network")
@@ -241,8 +229,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
             library(ergm, lib.loc="./r_packages")
              
             net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
-            formula <- paste("net ~ edges + nodecov('", "{selected_attribute}", "', diff = FALSE)", sep="")
-
+            formula <- paste("net ~ edges + nodecov('", {selected_attribute}, "')", sep="")
             
             alaam_model <- ergm::ergm(as.formula(formula))
             summary_alaam <- summary(ergm_model)
@@ -336,12 +323,10 @@ if __name__ == "__main__":
     st.set_page_config(page_title="Network Analysis App", page_icon="📊", layout="wide")
     output, error = install_r_packages()
 
-    # st.write(os.listdir("./r_packages"))
-
     st.title("Network Analysis App")
     st.sidebar.title("Options")
 
-    # File Upload FUnctionality
+    ## File Upload FUnctionality
     st.sidebar.title("Upload File")
     uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=["csv", "xlsx"])
 
@@ -357,7 +342,7 @@ if __name__ == "__main__":
         graph = create_graph(network_df)
         network_statistics = calculate_network_statistics(graph)
 
-        # Network Visualization and Metrics
+        ## Network Visualization and Metrics
         st.sidebar.title("Select Visual Metrics")
         visual_metrics_list = ("Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality",
                             "PageRank", "HITS Hub Scores", "HITS Authority Scores")
@@ -372,7 +357,7 @@ if __name__ == "__main__":
             st.download_button(label="Download Network Visualization", data=html_content, mime="text/html", file_name="network_visualization.html")
             st.components.v1.html(html_content, height=600)
 
-        # Community Visualization
+        ## Community Visualization
         show_community_visualization = st.checkbox("Show Community Visualization")
         if show_community_visualization:
             st.header("Community Visualization")
@@ -383,7 +368,7 @@ if __name__ == "__main__":
             community_metrics = ("Number of communities", "Community with the largest size", "Community with the smallest size", "Modularity")
             st.components.v1.html(html_content, height=800)
 
-        # Network Statistics
+        ## Network Statistics
         st.sidebar.title("Select Network Statistics")
         metrics_list = ("Number of Nodes", "Number of Edges", "Average Degree", "Density", "Clustering Coefficient", "Average Shortest Path Length", "Diameter"
                         , 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity')
@@ -398,7 +383,7 @@ if __name__ == "__main__":
             else:
                 st.write(f"**{metric}:** {value}")
         
-        # Statistical Modeling
+        ## Statistical Modeling
         st.sidebar.title("Select Statistical Model")
         selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
         selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
@@ -429,8 +414,6 @@ if __name__ == "__main__":
 
 
         ## Download report
-        # report_button = st.sidebar.button("Download Report")
-        # if report_button:
         report_df = network_df.copy()
         report_df.drop(columns=['target'], inplace=True)
         
@@ -457,7 +440,6 @@ if __name__ == "__main__":
         with open('Network_Analysis.xlsx', 'rb') as f:
             file_content = f.read()
             st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx")
-        # st.sidebar.download_button(label="Download Analysis Report", data='Network_Analysis.xlsx', mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx")
             
     else:
         st.warning("Please Upload a File")
