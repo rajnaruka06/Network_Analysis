@@ -387,11 +387,11 @@ def _show_ergm_gof_report(gof_summary_text):
     in_degree_df = pd.DataFrame(in_degree_dof_data, columns=headers)
     network_df = pd.DataFrame(network_data, columns=['model statistic'] + headers[1:])
 
-    st.write("Out Degree Degree of Freedom")
+    st.write("Out Degree Goodness of Fit")
     st.table(out_degree_df)
-    st.write("In Degree Degree of Freedom")
+    st.write("In Degree Goodness of Fit")
     st.table(in_degree_df)
-    st.write("Network Degree of Freedom")
+    st.write("Network Goodness of Fit")
     st.table(network_df)
     
     st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="ergm_gof_results.txt")
@@ -522,6 +522,8 @@ if __name__ == "__main__":
         writer._save()
         with open('Network_Analysis.xlsx', 'rb') as f:
             file_content = f.read()
+            ## Give horizontal line
+            st.markdown("---")
             st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx")
             
     else:
