@@ -13,11 +13,6 @@ import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
 from rpy2.robjects.conversion import localconverter
 
-## Humo mat sikhaao yr
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
-
-
 @st.cache_data()
 def install_r_packages():
     r_script_path = 'install_ergm.R'
@@ -149,7 +144,6 @@ def create_community_visualization(graph, network_statistics):
     nt.save_graph(output_dir)
     return output_dir
 
-@st.cache_data()
 def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="ergm_analysis_results.txt", gof_output_file_path = "ergm_gof_results.txt"):
     
     if edges_only:
@@ -216,7 +210,6 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
     return summary_text, gof_summary_text
 
-@st.cache_data()
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
 
     if edges_only:
