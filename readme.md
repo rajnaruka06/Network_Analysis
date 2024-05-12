@@ -1,15 +1,2 @@
 ## To implement:
-    - User uploads an excel file: 
-        - First Sheet: Node Attributes
-        - All other sheets: Networks
-        - Raj: Implemented. (Open to suggestions)
-    - Generalize Data Cleaning
-        - Raj: Implemented. (Open to suggestions)
-    - User won't see his own data. Generalize everything
-        - Raj: Implemented. (Open to suggestions)
-    - Complete ERGM function
-        -> Base version:  Kritika: Completed
-        -> Code updates and additional implementation: Raj: Comlpeted
-        -> Web App Integration  -> Raj: In Process
-    - Complete ALAAM function
-    - Complete Report Generation part
+    - ALAAM

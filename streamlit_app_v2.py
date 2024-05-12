@@ -211,41 +211,46 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
     return summary_text
 
-def perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path="alaam_analysis_results.txt"):
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
     
-    with tempfile.TemporaryDirectory() as temp_dir:
-        r_lib_path = temp_dir
+    if edges_only:
+        st.error("ALAAM Analysis is not supported for edges only network")
+    else:
+        if attribute_df[selected_attribute].dtype != np.float64:
+            st.error("ALAAM Analysis is only supported for numeric attributes")
+            return None
+        attribute_df = attribute_df[['NodeID', selected_attribute]]
+        attribute_df.dropna(subset=[selected_attribute], inplace=True)
 
-        # Ensure R can handle Pandas DataFrame
+        net_data = pd.merge(network_df, attribute_df, left_on='source', right_on='NodeID', how='left')
+        net_data.drop(columns=['NodeID'], inplace=True)
+        
         pandas2ri.activate()
         with localconverter(ro.default_converter + pandas2ri.converter):
-            r_net_data = ro.conversion.py2rpy(network_df)
-            r_attr_data = ro.conversion.py2rpy(attribute_df)
+            r_net_data = ro.conversion.py2rpy(net_data)
 
-        ro.globalenv['net_df'] = r_net_data
-        ro.globalenv['attr_df'] = r_attr_data
+        ro.globalenv['df'] = r_net_data
         ro.globalenv['selected_attribute'] = selected_attribute
         ro.r(f'''
-            install.packages("xergm", lib="{r_lib_path}")
-            library(network)
-            library(xergm)
+            library(network, lib.loc="./r_packages")
+            library(ergm, lib.loc="./r_packages")
+             
+            net <- network::network(df, vertex.attr = list({selected_attribute} = df${selected_attribute}), directed = TRUE, loops = FALSE)
+            formula <- paste("net ~ edges + nodecov('", "{selected_attribute}", "', diff = FALSE)", sep="")
 
-            net <- network::network(net_df, directed = TRUE, loops = FALSE)
-
-            # Ensure that the attribute is correctly formatted and attached to the network
-            net %v% "{selected_attribute}" <- attr_df$"{selected_attribute}"
-
-            # Fit the ALAAM using btergm from the xergm package
-            # The formula can be adjusted based on specific hypotheses about attribute interactions
-            formula <- paste("net ~ edges + nodecov('", "{selected_attribute}", "')", sep="")
-            alaam_model <- xergm::btergm(net, formula = as.formula(formula), R = 1000)  # R is the number of bootstraps
-
-            summary_alaam <- summary(alaam_model)
-            writeLines(capture.output(summary_alaam), "{output_file_path}")
+            
+            alaam_model <- ergm::ergm(as.formula(formula))
+            summary_alaam <- summary(ergm_model)
+                
+            writeLines(capture.output(summary_ergm), "{output_file_path}")
             ''')
-        with open(output_file_path, 'r') as f:
-            summary_text = f.read().strip()
-        return summary_text 
+
+        
+    with open(output_file_path, 'r') as f:
+        summary_text = f.read().strip()
+    st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
+
+    return summary_text
 
 def _read_csv(upload_file):
     df = pd.read_csv(upload_file)
