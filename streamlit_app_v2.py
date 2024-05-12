@@ -203,7 +203,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
-    st.download_button(label="Download ERGM Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
+    # st.download_button(label="Download ERGM Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
 
     with open(gof_output_file_path, 'r') as f:
         gof_summary_text = f.read().strip()
@@ -256,7 +256,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
-    st.download_button(label="Download ALAAM Analysis Results", data=summary_text, mime="text/plain", file_name="alaam_analysis_results.txt")
+    # st.download_button(label="Download ALAAM Analysis Results", data=summary_text, mime="text/plain", file_name="alaam_analysis_results.txt")
 
     with open(gof_output_file_path, 'r') as f:
         gof_summary_text = f.read().strip()
