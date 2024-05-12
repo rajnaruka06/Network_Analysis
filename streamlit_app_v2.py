@@ -208,9 +208,8 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
 
     with open(gof_output_file_path, 'r') as f:
         gof_summary_text = f.read().strip()
-    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="ergm_gof_results.txt")
 
-    return summary_text
+    return summary_text, gof_summary_text
 
 def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
 
@@ -370,6 +369,32 @@ def _show_alaam_report(summary_text, edges_only=False):
     st.write("AIC:", aic_value)
     st.write("BIC:", bic_value)
 
+def _show_ergm_gof_report(gof_summary_text):
+    st.header("Goodness of Fit Results")
+
+    lines = gof_summary_text.split("\n")
+    headers = lines[2].split()
+    headers = ['degree'] + headers[:4] + headers[5:]
+    out_degree_dof_data = lines[3:27]
+    in_degree_dof_data = lines[21:51]
+    network_data = lines[-2:]
+    
+    out_degree_dof_data = [line.split() for line in out_degree_dof_data]
+    in_degree_dof_data = [line.split() for line in in_degree_dof_data]
+    network_data = [line.split() for line in network_data]
+    
+    out_degree_df = pd.DataFrame(out_degree_dof_data, columns=headers)
+    in_degree_df = pd.DataFrame(in_degree_dof_data, columns=headers)
+    network_df = pd.DataFrame(network_data, columns=['model statistic'] + headers[1:])
+
+    st.write("Out Degree Degree of Freedom")
+    st.table(out_degree_df)
+    st.write("In Degree Degree of Freedom")
+    st.table(in_degree_df)
+    st.write("Network Degree of Freedom")
+    st.table(network_df)
+    
+    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="ergm_gof_results.txt")
 
 if __name__ == "__main__":
 
@@ -444,12 +469,17 @@ if __name__ == "__main__":
             st.header("ERGM Analysis Summary")
             edges_only=uploaded_file.name.endswith(".csv")
             ergm_file_path = "ergm_analysis_results.txt"
+            gof_file_path = "ergm_gof_results.txt"
             with st.spinner("Performing ERGM Analysis..."):
-                summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path)
+                summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
                         
             ## Manual labour to display ERGM summary
             if summary_text is not None:
                 _show_ergm_report(summary_text, edges_only = edges_only)
+            if gof_summary_text is not None:
+                show_dof = st.checkbox("Show Degree of Freedom")
+                if show_dof:
+                    _show_ergm_gof_report(gof_summary_text)
             else:
                 st.error("An error occurred during ERGM analysis")
         
