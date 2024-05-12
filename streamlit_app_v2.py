@@ -203,14 +203,14 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
-    st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
+    st.download_button(label="Download ERGM Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
 
     with open(gof_output_file_path, 'r') as f:
         gof_summary_text = f.read().strip()
 
     return summary_text, gof_summary_text
 
-def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt"):
+def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_only=False, output_file_path="alaam_analysis_results.txt", gof_output_file_path = "alaam_gof_results.txt"):
 
     if edges_only:
         st.error("ALAAM Analysis is not supported for edges only network")
@@ -247,14 +247,22 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
             summary_alaam <- summary(alaam_model)
                 
             writeLines(capture.output(summary_alaam), "{output_file_path}")
+
+            gof_results <- gof(ergm_model, GOF=~odegree+idegree)
+            writeLines(capture.output(gof_results), "{gof_output_file_path}")
+            
             ''')
 
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
-    st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="alaam_analysis_results.txt")
+    st.download_button(label="Download ALAAM Analysis Results", data=summary_text, mime="text/plain", file_name="alaam_analysis_results.txt")
 
-    return summary_text
+    with open(gof_output_file_path, 'r') as f:
+        gof_summary_text = f.read().strip()
+
+    st.download_button(label="Download ALAAM GOF Results", data=gof_summary_text, mime="text/plain", file_name="alaam_gof_results.txt")
+    return summary_text, gof_summary_text
 
 def _read_csv(upload_file):
     df = pd.read_csv(upload_file)
@@ -368,7 +376,7 @@ def _show_alaam_report(summary_text, edges_only=False):
     st.write("AIC:", aic_value)
     st.write("BIC:", bic_value)
 
-def _show_ergm_gof_report(gof_summary_text):
+def _show_ergm_gof_report(gof_summary_text, edges_only=False):
     st.header("Goodness of Fit Results")
 
     lines = gof_summary_text.split("\n")
@@ -376,7 +384,7 @@ def _show_ergm_gof_report(gof_summary_text):
     headers = ['degree'] + headers[:4] + headers[5:]
     out_degree_dof_data = lines[3:27]
     in_degree_dof_data = lines[21:51]
-    network_data = lines[-2:]
+    network_data = lines[-2:] if not edges_only else lines[-1:]
     
     out_degree_dof_data = [line.split() for line in out_degree_dof_data]
     in_degree_dof_data = [line.split() for line in in_degree_dof_data]
@@ -476,9 +484,9 @@ if __name__ == "__main__":
             if summary_text is not None:
                 _show_ergm_report(summary_text, edges_only = edges_only)
             if gof_summary_text is not None:
-                show_dof = st.checkbox("Show Degree of Freedom")
+                show_dof = st.checkbox("Show Goodness Of Fit Results")
                 if show_dof:
-                    _show_ergm_gof_report(gof_summary_text)
+                    _show_ergm_gof_report(gof_summary_text, edges_only=edges_only)
             else:
                 st.error("An error occurred during ERGM analysis")
         
@@ -488,7 +496,8 @@ if __name__ == "__main__":
                 st.warning("ALAAM Analysis is not supported for edges only network")    
             else:
                 alaam_file_path = "alaam_analysis_results.txt"
-                summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path)
+                gof_file_path = "alaam_gof_results.txt"
+                summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
                 if summary_text is not None:
                     _show_alaam_report(summary_text)
                 else:
