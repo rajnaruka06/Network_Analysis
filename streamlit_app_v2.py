@@ -8,6 +8,8 @@ import numpy as np
 from openpyxl import load_workbook
 import tempfile
 import subprocess
+import io
+
 
 import rpy2.robjects as ro
 from rpy2.robjects import pandas2ri
@@ -198,7 +200,7 @@ def perform_ergm_analysis(network_df, attribute_df, selected_attribute, edges_on
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
-    st.download_button(label="Download Analysis Results.txt", data=summary_text, mime="text/plain")
+    st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
 
     return summary_text
 
@@ -350,7 +352,7 @@ if __name__ == "__main__":
         viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate)
         with open(viz_path, 'r', encoding='utf-8') as f:
             html_content = open(viz_path, 'r', encoding='utf-8').read()
-            st.download_button(label="Download Network Visualization.html", data=html_content, mime="text/html")
+            st.download_button(label="Download Network Visualization", data=html_content, mime="text/html", file_name="network_visualization.html")
             st.components.v1.html(html_content, height=600)
 
         # Community Visualization
@@ -360,7 +362,7 @@ if __name__ == "__main__":
             st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
             community_viz_path = create_community_visualization(graph, network_statistics)
             html_content = open(community_viz_path, 'r', encoding='utf-8').read()
-            st.download_button(label="Download Community Visualization.html", data=html_content, mime="text/html")
+            st.download_button(label="Download Community Visualization", data=html_content, mime="text/html", file_name="community_visualization.html")
             community_metrics = ("Number of communities", "Community with the largest size", "Community with the smallest size", "Modularity")
             st.components.v1.html(html_content, height=800)
 
@@ -433,9 +435,11 @@ if __name__ == "__main__":
         network_statistics_df = pd.DataFrame({stat: [network_statistics[stat]] for stat in metrics_list})
         if network_statistics_df is not None:
             network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
+        bytes_buffer = io.BytesIO()
         writer._save()
-
-        st.sidebar.download_button(label="Download Report Analysis.xlsx", data='Network_Analysis.xlsx', mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        bytes_buffer.seek(0)
+        # st.sidebar.download_button(label="Download Report: Analysis-xlsx", data='Network_Analysis.xlsx', mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        st.sidebar.download_button(label="Download Report: Analysis-xlsx", data=bytes_buffer, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             
     else:
         st.warning("Please Upload a File")
