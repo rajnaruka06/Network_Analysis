@@ -219,7 +219,9 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
     if edges_only:
         st.error("ALAAM Analysis is not supported for edges only network")
     else:
-        if attribute_df[selected_attribute].dtype != np.float64:
+        try:
+            attribute_df[selected_attribute] = attribute_df[selected_attribute].astype(int)
+        except:
             st.error("ALAAM Analysis is only supported for numeric attributes")
             return None
         attribute_df = attribute_df[['NodeID', selected_attribute]]
