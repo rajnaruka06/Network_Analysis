@@ -484,7 +484,7 @@ if __name__ == "__main__":
         st.sidebar.title("Select Statistical Model")
         edges_only=uploaded_file.name.endswith(".csv")
         if edges_only:
-            selected_model = st.sidebar.radio("Choose ERGM Model", ("bernoulli"))
+            selected_model = st.sidebar.radio("Choose ERGM Model", ("bernoulli", ))
             st.sidebar.write("Bernoulli Model is the only supported model for edges only network.")
         else:
             selected_model = st.sidebar.radio("Choose Model", ("bernoulli", "Node Match", "Node Cov"))
