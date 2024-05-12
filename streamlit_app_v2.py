@@ -382,7 +382,7 @@ def _show_alaam_report(summary_text, edges_only=False):
 
 def _show_gof_report(gof_summary_text, edges_only=False):
     st.header("Goodness of Fit Results")
-    st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="gof_results.txt")
+    # st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="gof_results.txt", key="gof_results")
 
     lines = gof_summary_text.split("\n")
     headers = lines[2].split()
@@ -412,8 +412,6 @@ def _show_gof_report(gof_summary_text, edges_only=False):
     st.table(in_degree_df)
     st.write("Network Goodness of Fit")
     st.table(network_df)
-    
-    # st.download_button(label="Download GOF Results", data=gof_summary_text, mime="text/plain", file_name="gof_results.txt")
 
     return out_degree_df, in_degree_df, network_df
 
@@ -454,7 +452,7 @@ if __name__ == "__main__":
         viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate)
         with open(viz_path, 'r', encoding='utf-8') as f:
             html_content = open(viz_path, 'r', encoding='utf-8').read()
-            st.download_button(label="Download Network Visualization", data=html_content, mime="text/html", file_name="network_visualization.html")
+            st.download_button(label="Download Network Visualization", data=html_content, mime="text/html", file_name="network_visualization.html", key="network_viz")
             st.components.v1.html(html_content, height=600)
 
         ## Community Visualization
@@ -464,7 +462,7 @@ if __name__ == "__main__":
             st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
             community_viz_path = create_community_visualization(graph, network_statistics)
             html_content = open(community_viz_path, 'r', encoding='utf-8').read()
-            st.download_button(label="Download Community Visualization", data=html_content, mime="text/html", file_name="community_visualization.html")
+            st.download_button(label="Download Community Visualization", data=html_content, mime="text/html", file_name="community_visualization.html", key="community_viz")
             community_metrics = ("Number of communities", "Community with the largest size", "Community with the smallest size", "Modularity")
             st.components.v1.html(html_content, height=800)
 
@@ -563,7 +561,7 @@ if __name__ == "__main__":
             file_content = f.read()
             ## Give horizontal line
             st.markdown("---")
-            st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx")
+            st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx", key="analysis_report")
             
     else:
         st.warning("Please Upload a File")
