@@ -207,6 +207,9 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
     if edges_only:
         st.error("ALAAM Analysis is not supported for edges only network")
     else:
+        if attribute_df[selected_attribute].isna().any():
+            st.error("ALAAM Analysis is not supported for missing values in the selected attribute")
+            return None
         try:
             attribute_df[selected_attribute] = attribute_df[selected_attribute].astype(int)
         except:
@@ -240,7 +243,7 @@ def perform_alaam_analysis(network_df, attribute_df, selected_attribute, edges_o
         
     with open(output_file_path, 'r') as f:
         summary_text = f.read().strip()
-    st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="ergm_analysis_results.txt")
+    st.download_button(label="Download Analysis Results", data=summary_text, mime="text/plain", file_name="alaam_analysis_results.txt")
 
     return summary_text
 
@@ -407,8 +410,8 @@ if __name__ == "__main__":
             else:
                 alaam_file_path = "alaam_analysis_results.txt"
                 summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path)
-                if summary_text is not   None:
-                    st.write(summary_text)
+                if summary_text is not None:
+                    _show_ergm_report(summary_text)
                 else:
                     st.error("An error occurred during ALAAM analysis")
 
