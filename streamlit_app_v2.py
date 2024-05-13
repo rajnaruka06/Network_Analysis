@@ -448,13 +448,17 @@ if __name__ == "__main__":
     uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=supported_formats)
 
     if uploaded_file is not None:
-        with st.spinner("Uploading file..."):
-            if uploaded_file.name.endswith(".csv"):
-                network_df = _read_csv(uploaded_file)
-                attribute_df = pd.DataFrame(columns=['NodeID'])
-            else:
-                attribute_df, network_df =  _read_excel(uploaded_file)
-        st.sidebar.success("File Uploaded Successfully!")
+        try:
+
+            with st.spinner("Uploading file..."):
+                if uploaded_file.name.endswith(".csv"):
+                    network_df = _read_csv(uploaded_file)
+                    attribute_df = pd.DataFrame(columns=['NodeID'])
+                else:
+                    attribute_df, network_df =  _read_excel(uploaded_file)
+            st.sidebar.success("File Uploaded Successfully!")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
         graph = create_graph(network_df)
         network_statistics = calculate_network_statistics(graph)
