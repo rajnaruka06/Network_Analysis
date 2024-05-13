@@ -448,8 +448,9 @@ if __name__ == "__main__":
     uploaded_file = st.sidebar.file_uploader("Upload a CSV or an Excel File", type=supported_formats)
 
     if uploaded_file is not None:
+        ## TO better understand the error
         try:
-
+            
             with st.spinner("Uploading file..."):
                 if uploaded_file.name.endswith(".csv"):
                     network_df = _read_csv(uploaded_file)
@@ -457,160 +458,161 @@ if __name__ == "__main__":
                 else:
                     attribute_df, network_df =  _read_excel(uploaded_file)
             st.sidebar.success("File Uploaded Successfully!")
+
+            graph = create_graph(network_df)
+            network_statistics = calculate_network_statistics(graph)
+
+            ## Network Visualization and Metrics
+            st.sidebar.title("Select Visual Metrics")
+            visual_metrics_list = ("Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality",
+                                "PageRank", "HITS Hub Scores", "HITS Authority Scores")
+            selected_visual_metrics = st.sidebar.selectbox("Select Visual Metrics", visual_metrics_list)
+
+            st.header("Network Visualization")
+            st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
+            annotate = st.checkbox("Annotate Nodes with Visual Metric Value")
+            viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate)
+            with open(viz_path, 'r', encoding='utf-8') as f:
+                html_content = open(viz_path, 'r', encoding='utf-8').read()
+                st.download_button(label="Download Network Visualization", data=html_content, mime="text/html", file_name="network_visualization.html", key="network_viz")
+                st.components.v1.html(html_content, height=600)
+
+            ## Community Visualization
+            show_community_visualization = st.checkbox("Show Community Visualization")
+            if show_community_visualization:
+                st.header("Community Visualization")
+                st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
+                community_viz_path = create_community_visualization(graph, network_statistics)
+                html_content = open(community_viz_path, 'r', encoding='utf-8').read()
+                st.download_button(label="Download Community Visualization", data=html_content, mime="text/html", file_name="community_visualization.html", key="community_viz")
+                community_metrics = ("Number of communities", "Community with the largest size", "Community with the smallest size", "Modularity")
+                st.components.v1.html(html_content, height=800)
+
+            ## Network Statistics
+            st.sidebar.title("Select Network Statistics")
+            metrics_list = ("Number of Nodes", "Number of Edges", "Average Degree", "Density", "Clustering Coefficient", "Average Shortest Path Length", "Diameter"
+                            , 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity')
+            selected_metrics = st.sidebar.multiselect("Select Metrics", metrics_list)
+            
+            if selected_metrics: 
+                st.header("Network Analysis Metrics")
+            for metric in selected_metrics:
+                value = network_statistics.get(metric)
+                if isinstance(value, (int, float)):
+                    st.write(f"**{metric}:** {value:.2f}")
+                else:
+                    st.write(f"**{metric}:** {value}")
+            
+            ## Statistical Modeling
+            st.sidebar.title("Select Statistical Model")
+            # selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
+            selected_model = st.sidebar.radio("Choose Model (ERGMs)", ("bernoulli", "node_match", "node_covariate"))
+            selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
+
+            st.header(f"{selected_model} ERGM Analysis Summary")
+            edges_only=uploaded_file.name.endswith(".csv")
+            file_path = "analysis_result.txt"
+            gof_file_path = "gof_results.txt"
+            with st.spinner(f"Performing {selected_model} ERGM Analysis..."):
+                summary_text, gof_summary_text = perform_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only, output_file_path=file_path, gof_output_file_path=gof_file_path, model_type=selected_model)
+            
+            ## Manual labour to display ERGM summary
+            if summary_text is not None:
+                if selected_model in ['bernoulli', 'node_match']:
+                    _show_ergm_report(summary_text, edges_only = edges_only)
+                elif selected_model == 'node_covariate':
+                    _show_alaam_report(summary_text, edges_only = edges_only)
+            else:
+                st.error("An error occurred during analysis")
+            
+            show_gof = False
+            if gof_summary_text is not None:
+                show_gof = st.checkbox("Show Goodness Of Fit Results")
+                if show_gof:
+                    out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
+
+            # if selected_model == "ERGM":
+            #     st.header("ERGM Analysis Summary")
+            #     edges_only=uploaded_file.name.endswith(".csv")
+            #     ergm_file_path = "ergm_analysis_results.txt"
+            #     gof_file_path = "ergm_gof_results.txt"
+            #     with st.spinner("Performing ERGM Analysis..."):
+            #         summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
+                            
+            #     ## Manual labour to display ERGM summary
+            #     if summary_text is not None:
+            #         _show_ergm_report(summary_text, edges_only = edges_only)
+            #     if gof_summary_text is not None:
+            #         show_gof = st.checkbox("Show Goodness Of Fit Results")
+            #         if show_gof:
+            #             out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
+            #     else:
+            #         st.error("An error occurred during ERGM analysis")
+            
+            # elif selected_model == "ALAAM":
+            #     st.header("ALAAM Analysis")
+            #     st.warning("This is ERGM + Node Covariate Model.")
+            #     if uploaded_file.name.endswith(".csv"):
+            #         st.warning("ALAAM Analysis is not supported for edges only network")    
+            #     else:
+            #         alaam_file_path = "alaam_analysis_results.txt"
+            #         gof_file_path = "alaam_gof_results.txt"
+            #         summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
+            #         if summary_text is not None:
+            #             _show_alaam_report(summary_text)
+            #         if gof_summary_text is not None:
+            #             show_gof = st.checkbox("Show Goodness Of Fit Results")
+            #             if show_gof:
+            #                 out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
+            #         else:
+            #             st.error("An error occurred during ALAAM analysis")
+
+
+            ## Download report
+            report_df = network_df.copy()
+            report_df.drop(columns=['target'], inplace=True)
+            
+            node_community_map = {}
+            for community_num, community_list in enumerate(network_statistics['Communities']):
+                for node in community_list:
+                    node_community_map[node] = community_num
+
+            report_df['Community'] = report_df['source'].map(node_community_map)
+            node_lev_statistics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality", "PageRank", "HITS Hub Scores", "HITS Authority Scores"]
+            for stat in node_lev_statistics:
+                report_df[stat] = report_df['source'].map(network_statistics[stat])
+            
+            report_df.columns = ['Node'] + report_df.columns[1:].tolist()
+
+            writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
+            report_df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
+            network_statistics_df = pd.DataFrame.from_dict({stat: [network_statistics[stat]] for stat in metrics_list}, orient='index')
+            network_statistics_df.reset_index(inplace=True)
+            network_statistics_df.columns = ['Metric', 'Value']
+            if network_statistics_df is not None:
+                network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
+            
+            if summary_text is not None:
+                summary_df = pd.DataFrame.from_dict({'Summary': summary_text[summary_text.find('Maximum'):]}, orient='index')
+                summary_df.reset_index(inplace=True)
+                if summary_df is not None:
+                    summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
+
+            if show_gof:
+                gof_dfs = {'Out Degree': out_degree_df, 'In Degree': in_degree_df, 'Network': network_dof_df}
+                for key, df in gof_dfs.items():
+                    if df is not None:
+                        df.to_excel(writer, sheet_name=f'{key} GOF', index=False)
+
+            writer._save()
+            with open('Network_Analysis.xlsx', 'rb') as f:
+                file_content = f.read()
+                ## Give horizontal line
+                st.markdown("---")
+                st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx", key="analysis_report")
+        
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
-        graph = create_graph(network_df)
-        network_statistics = calculate_network_statistics(graph)
-
-        ## Network Visualization and Metrics
-        st.sidebar.title("Select Visual Metrics")
-        visual_metrics_list = ("Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality",
-                            "PageRank", "HITS Hub Scores", "HITS Authority Scores")
-        selected_visual_metrics = st.sidebar.selectbox("Select Visual Metrics", visual_metrics_list)
-
-        st.header("Network Visualization")
-        st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
-        annotate = st.checkbox("Annotate Nodes with Visual Metric Value")
-        viz_path = create_network_visualization(graph, selected_visual_metrics, network_statistics, annotate)
-        with open(viz_path, 'r', encoding='utf-8') as f:
-            html_content = open(viz_path, 'r', encoding='utf-8').read()
-            st.download_button(label="Download Network Visualization", data=html_content, mime="text/html", file_name="network_visualization.html", key="network_viz")
-            st.components.v1.html(html_content, height=600)
-
-        ## Community Visualization
-        show_community_visualization = st.checkbox("Show Community Visualization")
-        if show_community_visualization:
-            st.header("Community Visualization")
-            st.markdown("Zoom in/out, Drag or select to see individual node and its attributes.")
-            community_viz_path = create_community_visualization(graph, network_statistics)
-            html_content = open(community_viz_path, 'r', encoding='utf-8').read()
-            st.download_button(label="Download Community Visualization", data=html_content, mime="text/html", file_name="community_visualization.html", key="community_viz")
-            community_metrics = ("Number of communities", "Community with the largest size", "Community with the smallest size", "Modularity")
-            st.components.v1.html(html_content, height=800)
-
-        ## Network Statistics
-        st.sidebar.title("Select Network Statistics")
-        metrics_list = ("Number of Nodes", "Number of Edges", "Average Degree", "Density", "Clustering Coefficient", "Average Shortest Path Length", "Diameter"
-                        , 'Number of communities', 'Community with the largest size', 'Community with the smallest size', 'Modularity')
-        selected_metrics = st.sidebar.multiselect("Select Metrics", metrics_list)
-        
-        if selected_metrics: 
-            st.header("Network Analysis Metrics")
-        for metric in selected_metrics:
-            value = network_statistics.get(metric)
-            if isinstance(value, (int, float)):
-                st.write(f"**{metric}:** {value:.2f}")
-            else:
-                st.write(f"**{metric}:** {value}")
-        
-        ## Statistical Modeling
-        st.sidebar.title("Select Statistical Model")
-        # selected_model = st.sidebar.radio("Choose Model", ("ERGM", "ALAAM"))
-        selected_model = st.sidebar.radio("Choose Model (ERGMs)", ("bernoulli", "node_match", "node_covariate"))
-        selected_attribute =  st.sidebar.selectbox("Select Attribute", attribute_df.columns[1:])
-
-        st.header(f"{selected_model} ERGM Analysis Summary")
-        edges_only=uploaded_file.name.endswith(".csv")
-        file_path = "analysis_result.txt"
-        gof_file_path = "gof_results.txt"
-        with st.spinner(f"Performing {selected_model} ERGM Analysis..."):
-            summary_text, gof_summary_text = perform_analysis(network_df, attribute_df, selected_attribute, edges_only=edges_only, output_file_path=file_path, gof_output_file_path=gof_file_path, model_type=selected_model)
-        
-        ## Manual labour to display ERGM summary
-        if summary_text is not None:
-            if selected_model in ['bernoulli', 'node_match']:
-                _show_ergm_report(summary_text, edges_only = edges_only)
-            elif selected_model == 'node_covariate':
-                _show_alaam_report(summary_text, edges_only = edges_only)
-        else:
-            st.error("An error occurred during analysis")
-        
-        show_gof = False
-        if gof_summary_text is not None:
-            show_gof = st.checkbox("Show Goodness Of Fit Results")
-            if show_gof:
-                out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
-
-        # if selected_model == "ERGM":
-        #     st.header("ERGM Analysis Summary")
-        #     edges_only=uploaded_file.name.endswith(".csv")
-        #     ergm_file_path = "ergm_analysis_results.txt"
-        #     gof_file_path = "ergm_gof_results.txt"
-        #     with st.spinner("Performing ERGM Analysis..."):
-        #         summary_text, gof_summary_text = perform_ergm_analysis(network_df, attribute_df,  selected_attribute, edges_only=edges_only, output_file_path=ergm_file_path, gof_output_file_path=gof_file_path)
-                        
-        #     ## Manual labour to display ERGM summary
-        #     if summary_text is not None:
-        #         _show_ergm_report(summary_text, edges_only = edges_only)
-        #     if gof_summary_text is not None:
-        #         show_gof = st.checkbox("Show Goodness Of Fit Results")
-        #         if show_gof:
-        #             out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text, edges_only=edges_only)
-        #     else:
-        #         st.error("An error occurred during ERGM analysis")
-        
-        # elif selected_model == "ALAAM":
-        #     st.header("ALAAM Analysis")
-        #     st.warning("This is ERGM + Node Covariate Model.")
-        #     if uploaded_file.name.endswith(".csv"):
-        #         st.warning("ALAAM Analysis is not supported for edges only network")    
-        #     else:
-        #         alaam_file_path = "alaam_analysis_results.txt"
-        #         gof_file_path = "alaam_gof_results.txt"
-        #         summary_text, gof_summary_text = perform_alaam_analysis(network_df, attribute_df, selected_attribute, output_file_path=alaam_file_path, gof_output_file_path=gof_file_path)
-        #         if summary_text is not None:
-        #             _show_alaam_report(summary_text)
-        #         if gof_summary_text is not None:
-        #             show_gof = st.checkbox("Show Goodness Of Fit Results")
-        #             if show_gof:
-        #                 out_degree_df, in_degree_df, network_dof_df = _show_gof_report(gof_summary_text)
-        #         else:
-        #             st.error("An error occurred during ALAAM analysis")
-
-
-        ## Download report
-        report_df = network_df.copy()
-        report_df.drop(columns=['target'], inplace=True)
-        
-        node_community_map = {}
-        for community_num, community_list in enumerate(network_statistics['Communities']):
-            for node in community_list:
-                node_community_map[node] = community_num
-
-        report_df['Community'] = report_df['source'].map(node_community_map)
-        node_lev_statistics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality", "Eigenvector Centrality", "PageRank", "HITS Hub Scores", "HITS Authority Scores"]
-        for stat in node_lev_statistics:
-            report_df[stat] = report_df['source'].map(network_statistics[stat])
-        
-        report_df.columns = ['Node'] + report_df.columns[1:].tolist()
-
-        writer = pd.ExcelWriter('Network_Analysis.xlsx', engine='xlsxwriter')
-        report_df.to_excel(writer, sheet_name='Node_Level_Stats', index=False)
-        network_statistics_df = pd.DataFrame.from_dict({stat: [network_statistics[stat]] for stat in metrics_list}, orient='index')
-        network_statistics_df.reset_index(inplace=True)
-        network_statistics_df.columns = ['Metric', 'Value']
-        if network_statistics_df is not None:
-            network_statistics_df.to_excel(writer, sheet_name='Network Statistics', index=False)
-        
-        if summary_text is not None:
-            summary_df = pd.DataFrame.from_dict({'Summary': summary_text[summary_text.find('Maximum'):]}, orient='index')
-            summary_df.reset_index(inplace=True)
-            if summary_df is not None:
-                summary_df.to_excel(writer, sheet_name=f'{selected_model} Summary', index=False)
-
-        if show_gof:
-            gof_dfs = {'Out Degree': out_degree_df, 'In Degree': in_degree_df, 'Network': network_dof_df}
-            for key, df in gof_dfs.items():
-                if df is not None:
-                    df.to_excel(writer, sheet_name=f'{key} GOF', index=False)
-
-        writer._save()
-        with open('Network_Analysis.xlsx', 'rb') as f:
-            file_content = f.read()
-            ## Give horizontal line
-            st.markdown("---")
-            st.download_button(label="Download Analysis Report", data=file_content, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name="Network_Analysis.xlsx", key="analysis_report")
             
     else:
         st.warning("Please Upload a File")
